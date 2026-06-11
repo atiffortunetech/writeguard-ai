@@ -20,19 +20,30 @@ function parseDatabaseUrl(url: string): PoolOptions {
 }
 
 function getPoolConfig(): PoolOptions {
-  const databaseUrl = process.env.DATABASE_URL;
-  if (databaseUrl?.startsWith("mysql://")) {
-    return parseDatabaseUrl(databaseUrl);
+  const databaseUrl = process.env.DATABASE_URL?.trim();
+
+  if (databaseUrl) {
+    if (
+      databaseUrl.startsWith("postgresql://") ||
+      databaseUrl.startsWith("postgres://")
+    ) {
+      throw new Error(
+        "DATABASE_URL is still PostgreSQL/Supabase. On Hostinger, delete it and set MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE (or DATABASE_URL=mysql://...)."
+      );
+    }
+    if (databaseUrl.startsWith("mysql://")) {
+      return parseDatabaseUrl(databaseUrl);
+    }
   }
 
-  const host = process.env.MYSQL_HOST;
-  const user = process.env.MYSQL_USER;
+  const host = process.env.MYSQL_HOST?.trim();
+  const user = process.env.MYSQL_USER?.trim();
   const password = process.env.MYSQL_PASSWORD;
-  const database = process.env.MYSQL_DATABASE;
+  const database = process.env.MYSQL_DATABASE?.trim();
 
-  if (!host || !user || password === undefined || !database) {
+  if (!host || !user || password === undefined || password === "" || !database) {
     throw new Error(
-      "Database not configured. Set DATABASE_URL (mysql://...) or MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE."
+      "Database not configured. Set MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE on Hostinger (host is usually localhost or 127.0.0.1)."
     );
   }
 
