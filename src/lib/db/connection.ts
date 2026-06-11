@@ -58,11 +58,13 @@ function getPoolConfig(): PoolOptions {
 
 export function getPool(): Pool {
   if (!pool) {
+    const config = getPoolConfig();
     pool = mysql.createPool({
-      ...getPoolConfig(),
+      ...config,
       waitForConnections: true,
-      connectionLimit: 10,
+      connectionLimit: 5,
       queueLimit: 0,
+      connectTimeout: 10_000,
       dateStrings: false,
       enableKeepAlive: true,
       keepAliveInitialDelay: 0,

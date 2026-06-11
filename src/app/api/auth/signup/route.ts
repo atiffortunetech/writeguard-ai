@@ -48,9 +48,33 @@ export async function POST(req: NextRequest) {
     );
   } catch (error) {
     console.error("Signup error:", error);
-    return NextResponse.json(
-      { error: "Failed to create account" },
-      { status: 500 }
-    );
+    const message = error instanceof Error ? error.message : "Failed to create account";
+
+    if (message.includes("doesn't exist") || message.includes("Unknown table")) {
+      return NextResponse.json(
+        {
+          error:
+            "Database tables missing. Import mysql/writeguard-full-setup.sql in Hostinger phpMyAdmin.",
+        },
+        { status: 503 }
+      );
+    }
+
+    if (
+      message.includes("timed out") ||
+      message.includes("ETIMEDOUT") ||
+      message.includes("ECONNREFUSED") ||
+      message.includes("Access denied")
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Cannot connect to MySQL. Check MYSQL_HOST (try 127.0.0.1), MYSQL_USER, and MYSQL_PASSWORD on Hostinger.",
+        },
+        { status: 503 }
+      );
+    }
+
+    return NextResponse.json({ error: "Failed to create account" }, { status: 500 });
   }
 }
