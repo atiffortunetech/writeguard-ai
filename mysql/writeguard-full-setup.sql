@@ -1,11 +1,11 @@
 -- WriteGuard AI — full MySQL schema
--- Run: mysql -u root -p < mysql/writeguard-full-setup.sql
-
-CREATE DATABASE IF NOT EXISTS writeguard
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
-
-USE writeguard;
+--
+-- HOSTINGER / phpMyAdmin:
+--   1. Click your database in the left sidebar (e.g. u998538981_writeguard)
+--   2. Open Import → choose this file → Go
+--   Do NOT run CREATE DATABASE — Hostinger already created your database.
+--
+-- Local MySQL: create a database first, select it, then import this file.
 
 SET FOREIGN_KEY_CHECKS = 0;
 

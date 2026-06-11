@@ -25,8 +25,10 @@ Premium AI writing assistant SaaS — grammar checking, rewrites, tone control, 
 ### Step 2: Import schema
 
 1. Open **phpMyAdmin** for your database
-2. Import or paste and run: `mysql/writeguard-full-setup.sql`
-3. This creates all tables and seeds subscription plans
+2. **Click your database name** in the left sidebar (e.g. `u998538981_writeguard`)
+3. Go to **Import** → upload `mysql/writeguard-full-setup.sql` → **Go**
+
+Do **not** create a new database in SQL — Hostinger already gave you one. Import into that database only.
 
 ### Step 3: Configure env vars
 
