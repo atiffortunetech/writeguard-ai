@@ -48,22 +48,27 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const email = credentials.email as string;
         const password = credentials.password as string;
 
-        const user = await prisma.user.findUnique({ where: { email } });
+        try {
+          const user = await prisma.user.findUnique({ where: { email } });
 
-        if (!user?.passwordHash || user.banned) {
+          if (!user?.passwordHash || user.banned) {
+            return null;
+          }
+
+          const isValid = await bcrypt.compare(password, user.passwordHash);
+          if (!isValid) return null;
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            image: user.image,
+            role: user.role,
+          };
+        } catch (err) {
+          console.error("Credentials auth database error:", err);
           return null;
         }
-
-        const isValid = await bcrypt.compare(password, user.passwordHash);
-        if (!isValid) return null;
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          image: user.image,
-          role: user.role,
-        };
       },
     }),
   ],
