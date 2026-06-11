@@ -7,7 +7,7 @@ import {
   PLAN_FEATURE_SUMMARY,
 } from "@/lib/plan-features";
 import { PLAN_DEFINITIONS } from "@/lib/stripe";
-import type { PlanTier } from "@/generated/prisma/client";
+import type { PlanTier } from "@/types/database";
 
 export async function GET() {
   const session = await auth();

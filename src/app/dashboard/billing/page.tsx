@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { CreditCard, ExternalLink, Check } from "lucide-react";
-import type { PlanTier } from "@/generated/prisma/client";
+import type { PlanTier } from "@/types/database";
 
 interface BillingData {
   tier: string;

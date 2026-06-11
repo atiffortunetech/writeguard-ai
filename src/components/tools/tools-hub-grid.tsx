@@ -14,7 +14,7 @@ import {
   isFeatureUnlockedForTier,
   featureIdForToolSlug,
 } from "@/lib/plan-tiers";
-import type { PlanTier } from "@/generated/prisma/client";
+import type { PlanTier } from "@/types/database";
 import { PLAN_DEFINITIONS } from "@/lib/stripe";
 import { Lock } from "lucide-react";
 

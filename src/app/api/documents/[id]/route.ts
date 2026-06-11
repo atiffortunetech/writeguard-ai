@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { documentSchema } from "@/lib/validations";
-import { prisma } from "@/lib/prisma";
+import {
+  countVersions,
+  createVersion,
+  deleteDocument,
+  findDocumentByIdAndUserId,
+  updateDocument,
+} from "@/lib/db";
 import { countWords } from "@/lib/utils";
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -15,9 +21,7 @@ export async function GET(_req: NextRequest, context: RouteContext) {
 
     const { id } = await context.params;
 
-    const document = await prisma.document.findFirst({
-      where: { id, userId: session.user.id },
-    });
+    const document = await findDocumentByIdAndUserId(id, session.user.id);
 
     if (!document) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -51,9 +55,7 @@ export async function PATCH(req: NextRequest, context: RouteContext) {
       );
     }
 
-    const existing = await prisma.document.findFirst({
-      where: { id, userId: session.user.id },
-    });
+    const existing = await findDocumentByIdAndUserId(id, session.user.id);
 
     if (!existing) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -62,28 +64,21 @@ export async function PATCH(req: NextRequest, context: RouteContext) {
     const plainText = parsed.data.plainText ?? parsed.data.content ?? existing.plainText;
     const wordCount = countWords(plainText);
 
-    const document = await prisma.document.update({
-      where: { id },
-      data: {
-        ...parsed.data,
-        plainText,
-        wordCount,
-        characterCount: plainText.length,
-      },
+    const document = await updateDocument(id, {
+      ...parsed.data,
+      plainText,
+      wordCount,
+      characterCount: plainText.length,
     });
 
-    const versionCount = await prisma.documentVersion.count({
-      where: { documentId: id },
-    });
+    const versionCount = await countVersions(id);
 
-    await prisma.documentVersion.create({
-      data: {
-        documentId: id,
-        userId: session.user.id,
-        content: document.content,
-        plainText: document.plainText,
-        version: versionCount + 1,
-      },
+    await createVersion({
+      documentId: id,
+      userId: session.user.id,
+      content: document.content,
+      plainText: document.plainText,
+      version: versionCount + 1,
     });
 
     return NextResponse.json(document);
@@ -105,15 +100,13 @@ export async function DELETE(_req: NextRequest, context: RouteContext) {
 
     const { id } = await context.params;
 
-    const existing = await prisma.document.findFirst({
-      where: { id, userId: session.user.id },
-    });
+    const existing = await findDocumentByIdAndUserId(id, session.user.id);
 
     if (!existing) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    await prisma.document.delete({ where: { id } });
+    await deleteDocument(id);
 
     return NextResponse.json({ success: true });
   } catch (error) {

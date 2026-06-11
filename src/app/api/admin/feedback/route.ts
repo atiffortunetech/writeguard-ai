@@ -1,16 +1,12 @@
 import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { listFeedback } from "@/lib/db";
 import { requireApiAdmin } from "@/lib/api-utils";
 
 export async function GET() {
   const auth = await requireApiAdmin();
   if ("error" in auth) return auth.error;
 
-  const feedback = await prisma.feedback.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 50,
-    include: { user: { select: { name: true, email: true } } },
-  });
+  const feedback = await listFeedback({ limit: 50 });
 
   return Response.json(feedback);
 }

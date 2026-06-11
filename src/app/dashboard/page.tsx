@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { findDocuments } from "@/lib/db";
 import { getUserPlanTier, getUserUsageThisMonth } from "@/lib/usage";
 import { PLAN_DEFINITIONS } from "@/lib/stripe";
 import { DashboardHeader } from "@/components/dashboard/header";
@@ -34,11 +34,7 @@ export default async function DashboardPage() {
   const userId = session!.user!.id;
 
   const [documents, tier, usage] = await Promise.all([
-    prisma.document.findMany({
-      where: { userId },
-      orderBy: { updatedAt: "desc" },
-      take: 5,
-    }),
+    findDocuments(userId, { limit: 5, orderBy: "updated_at" }),
     getUserPlanTier(userId),
     getUserUsageThisMonth(userId),
   ]);

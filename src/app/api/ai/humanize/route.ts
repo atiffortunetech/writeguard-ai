@@ -1,6 +1,6 @@
 import { normalizeIntensity } from "@/prompts/humanizer";
 import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { findFirstBrandVoiceByUserId } from "@/lib/db";
 import { humanizeSchema } from "@/lib/validations";
 import { getAIProvider, isAIConfigured } from "@/providers/ai";
 import { requireApiAuth, apiError } from "@/lib/api-utils";
@@ -32,9 +32,10 @@ export async function POST(req: NextRequest) {
 
   let brandVoice;
   if (parsed.data.brandVoiceId) {
-    brandVoice = await prisma.brandVoice.findFirst({
-      where: { id: parsed.data.brandVoiceId, userId: auth.session.user.id },
-    });
+    brandVoice = await findFirstBrandVoiceByUserId(
+      auth.session.user.id,
+      parsed.data.brandVoiceId
+    );
   }
 
   const provider = getAIProvider();

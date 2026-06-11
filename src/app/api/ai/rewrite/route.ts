@@ -5,7 +5,7 @@ import { getAIProvider, isAIConfigured } from "@/providers/ai";
 import { aiRateLimiter, checkRateLimit } from "@/lib/redis";
 import { checkUsageLimit, logAIRequest } from "@/lib/usage";
 import { checkFeatureAccess } from "@/lib/plan-features";
-import { prisma } from "@/lib/prisma";
+import { findFirstBrandVoiceByUserId } from "@/lib/db";
 import type { RewriteAction } from "@/types/ai";
 
 export async function POST(req: NextRequest) {
@@ -59,9 +59,7 @@ export async function POST(req: NextRequest) {
 
     let brandVoice;
     if (brandVoiceId) {
-      brandVoice = await prisma.brandVoice.findFirst({
-        where: { id: brandVoiceId, userId: session.user.id },
-      });
+      brandVoice = await findFirstBrandVoiceByUserId(session.user.id, brandVoiceId);
     }
 
     const provider = getAIProvider();

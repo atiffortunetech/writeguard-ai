@@ -1,10 +1,15 @@
 import NextAuth from "next-auth";
-import { PrismaAdapter } from "@auth/prisma-adapter";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { prisma } from "@/lib/prisma";
+import {
+  createUser,
+  findUserByAccount,
+  findUserByEmail,
+  findUserById,
+  linkAccount,
+} from "@/lib/db";
 import { authConfig } from "@/lib/auth.config";
-import type { UserRole } from "@/generated/prisma/client";
+import type { UserRole } from "@/types/database";
 
 declare module "next-auth" {
   interface Session {
@@ -31,7 +36,6 @@ declare module "@auth/core/jwt" {
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
-  adapter: PrismaAdapter(prisma),
   providers: [
     ...authConfig.providers.filter((p) => p.id !== "credentials"),
     Credentials({
@@ -49,7 +53,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const password = credentials.password as string;
 
         try {
-          const user = await prisma.user.findUnique({ where: { email } });
+          const user = await findUserByEmail(email);
 
           if (!user?.passwordHash || user.banned) {
             return null;
@@ -74,15 +78,73 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   callbacks: {
     ...authConfig.callbacks,
+    async signIn({ user, account }) {
+      if (account?.provider !== "google") {
+        return true;
+      }
+
+      const provider = account.provider;
+      const providerAccountId = account.providerAccountId;
+      const email = user.email;
+
+      if (!provider || !providerAccountId || !email) {
+        return false;
+      }
+
+      let dbUser = await findUserByAccount(provider, providerAccountId);
+
+      if (!dbUser) {
+        dbUser = await findUserByEmail(email);
+      }
+
+      if (!dbUser) {
+        dbUser = await createUser({
+          email,
+          name: user.name,
+          image: user.image,
+          emailVerified: new Date(),
+          role: "USER",
+        });
+      }
+
+      if (dbUser.banned) {
+        return false;
+      }
+
+      const linkedUser = await findUserByAccount(provider, providerAccountId);
+      if (!linkedUser) {
+        await linkAccount({
+          userId: dbUser.id,
+          type: account.type,
+          provider,
+          providerAccountId,
+          refreshToken: account.refresh_token ?? null,
+          accessToken: account.access_token ?? null,
+          expiresAt: account.expires_at ?? null,
+          tokenType: account.token_type ?? null,
+          scope: account.scope ?? null,
+          idToken: account.id_token ?? null,
+          sessionState:
+            typeof account.session_state === "string"
+              ? account.session_state
+              : null,
+        });
+      }
+
+      user.id = dbUser.id;
+      user.role = dbUser.role;
+      user.email = dbUser.email;
+      user.name = dbUser.name;
+      user.image = dbUser.image;
+
+      return true;
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id!;
         token.role = user.role;
       } else if (token.id) {
-        const dbUser = await prisma.user.findUnique({
-          where: { id: token.id as string },
-          select: { role: true, banned: true },
-        });
+        const dbUser = await findUserById(token.id as string);
         if (dbUser && !dbUser.banned) {
           token.role = dbUser.role;
         }

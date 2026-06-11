@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { stripe, isStripeConfigured } from "@/lib/stripe";
-import { prisma } from "@/lib/prisma";
+import { findActiveSubscription, findSubscriptionByUserId } from "@/lib/db";
 
 export async function POST() {
   try {
@@ -17,9 +17,9 @@ export async function POST() {
       );
     }
 
-    const subscription = await prisma.subscription.findFirst({
-      where: { userId: session.user.id },
-    });
+    const subscription =
+      (await findActiveSubscription(session.user.id)) ??
+      (await findSubscriptionByUserId(session.user.id));
 
     if (!subscription?.stripeCustomerId) {
       return NextResponse.json(

@@ -1,5 +1,8 @@
 import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import {
+  createPlagiarismCheck,
+  listPlagiarismChecksByUserId,
+} from "@/lib/db";
 import { plagiarismSchema } from "@/lib/validations";
 import { getPlagiarismProvider } from "@/providers/plagiarism";
 import { requireApiAuth, apiError } from "@/lib/api-utils";
@@ -36,16 +39,14 @@ export async function POST(req: NextRequest) {
   try {
     const result = await provider.checkPlagiarism(parsed.data.text);
 
-    const check = await prisma.plagiarismCheck.create({
-      data: {
-        userId: auth.session.user.id,
-        content: parsed.data.text.slice(0, 10000),
-        similarityScore: result.similarityScore,
-        matchedSources: result.matchedSources,
-        highlights: result.highlights,
-        provider: result.provider,
-        status: "completed",
-      },
+    const check = await createPlagiarismCheck({
+      userId: auth.session.user.id,
+      content: parsed.data.text.slice(0, 10000),
+      similarityScore: result.similarityScore,
+      matchedSources: result.matchedSources,
+      highlights: result.highlights,
+      provider: result.provider,
+      status: "completed",
     });
 
     await logUsage(auth.session.user.id, "plagiarism_check");
@@ -68,17 +69,8 @@ export async function GET() {
   const auth = await requireApiAuth();
   if ("error" in auth) return auth.error;
 
-  const checks = await prisma.plagiarismCheck.findMany({
-    where: { userId: auth.session.user.id },
-    orderBy: { createdAt: "desc" },
-    take: 20,
-    select: {
-      id: true,
-      similarityScore: true,
-      provider: true,
-      status: true,
-      createdAt: true,
-    },
+  const checks = await listPlagiarismChecksByUserId(auth.session.user.id, {
+    limit: 20,
   });
 
   const provider = getPlagiarismProvider();

@@ -1,5 +1,16 @@
 import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import {
+  banUser,
+  countActiveSubscriptions,
+  countAIRequestLogs,
+  countDocuments,
+  countUsers,
+  listActiveSubscriptionsWithPlans,
+  listPlansWithSubscriptionCounts,
+  listRecentUsers,
+  makeUserAdmin,
+  unbanUser,
+} from "@/lib/db";
 import { requireApiAdmin } from "@/lib/api-utils";
 
 export async function GET() {
@@ -17,31 +28,12 @@ export async function GET() {
     recentUsers,
     subscriptions,
   ] = await Promise.all([
-    prisma.user.count(),
-    prisma.subscription.count({
-      where: {
-        status: { in: ["ACTIVE", "TRIALING"] },
-        plan: { tier: { not: "FREE" } },
-      },
-    }),
-    prisma.document.count(),
-    prisma.aIRequestLog.count({ where: { createdAt: { gte: startOfMonth } } }),
-    prisma.user.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 10,
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        banned: true,
-        createdAt: true,
-      },
-    }),
-    prisma.subscription.findMany({
-      where: { status: { in: ["ACTIVE", "TRIALING"] } },
-      include: { plan: true },
-    }),
+    countUsers(),
+    countActiveSubscriptions(),
+    countDocuments(),
+    countAIRequestLogs({ since: startOfMonth }),
+    listRecentUsers(10),
+    listActiveSubscriptionsWithPlans(),
   ]);
 
   const mrr = subscriptions.reduce((sum, sub) => {
@@ -50,9 +42,7 @@ export async function GET() {
     return sum;
   }, 0);
 
-  const planBreakdown = await prisma.plan.findMany({
-    include: { _count: { select: { subscriptions: true } } },
-  });
+  const planBreakdown = await listPlansWithSubscriptionCounts();
 
   return Response.json({
     totalUsers,
@@ -75,11 +65,11 @@ export async function PATCH(req: NextRequest) {
   }
 
   if (action === "ban") {
-    await prisma.user.update({ where: { id: userId }, data: { banned: true } });
+    await banUser(userId);
   } else if (action === "unban") {
-    await prisma.user.update({ where: { id: userId }, data: { banned: false } });
+    await unbanUser(userId);
   } else if (action === "make_admin") {
-    await prisma.user.update({ where: { id: userId }, data: { role: "ADMIN" } });
+    await makeUserAdmin(userId);
   } else {
     return Response.json({ error: "Invalid action" }, { status: 400 });
   }

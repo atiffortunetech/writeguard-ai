@@ -4,7 +4,7 @@ import { analyzeSchema } from "@/lib/validations";
 import { getAIProvider, isAIConfigured } from "@/providers/ai";
 import { aiRateLimiter, checkRateLimit } from "@/lib/redis";
 import { checkUsageLimit, logAIRequest } from "@/lib/usage";
-import { prisma } from "@/lib/prisma";
+import { findFirstBrandVoiceByUserId, findFirstStyleGuideByUserId } from "@/lib/db";
 
 /** Keep requests fast enough for local dev and avoid huge OpenAI payloads */
 const MAX_ANALYZE_CHARS = 12_000;
@@ -61,15 +61,11 @@ export async function POST(req: NextRequest) {
     let styleGuide;
 
     if (brandVoiceId) {
-      brandVoice = await prisma.brandVoice.findFirst({
-        where: { id: brandVoiceId, userId: session.user.id },
-      });
+      brandVoice = await findFirstBrandVoiceByUserId(session.user.id, brandVoiceId);
     }
 
     if (styleGuideId) {
-      styleGuide = await prisma.styleGuide.findFirst({
-        where: { id: styleGuideId, userId: session.user.id },
-      });
+      styleGuide = await findFirstStyleGuideByUserId(session.user.id, styleGuideId);
     }
 
     const provider = getAIProvider();

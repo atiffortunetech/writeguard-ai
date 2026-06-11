@@ -1,4 +1,4 @@
-import type { PlanTier } from "@/generated/prisma/client";
+import type { PlanTier } from "@/types/database";
 import { PLAN_DEFINITIONS } from "@/lib/stripe";
 import { getUserPlanTier, isAppAdmin } from "@/lib/usage";
 import {

@@ -2,7 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
-import { prisma } from "@/lib/prisma";
+import {
+  createSubscription,
+  findPlanByTier,
+  findSubscriptionByUserId,
+  updateSubscription,
+  updateSubscriptionsByStripeId,
+} from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   if (!stripe) {
@@ -37,14 +43,10 @@ export async function POST(req: NextRequest) {
         const tier = session.metadata?.tier;
 
         if (userId && tier) {
-          const plan = await prisma.plan.findUnique({
-            where: { tier: tier as "PRO" | "BUSINESS" },
-          });
+          const plan = await findPlanByTier(tier as "PRO" | "BUSINESS");
 
           if (plan) {
-            const existing = await prisma.subscription.findFirst({
-              where: { userId },
-            });
+            const existing = await findSubscriptionByUserId(userId);
 
             const subscriptionData = {
               planId: plan.id,
@@ -54,14 +56,9 @@ export async function POST(req: NextRequest) {
             };
 
             if (existing) {
-              await prisma.subscription.update({
-                where: { id: existing.id },
-                data: subscriptionData,
-              });
+              await updateSubscription(existing.id, subscriptionData);
             } else {
-              await prisma.subscription.create({
-                data: { userId, ...subscriptionData },
-              });
+              await createSubscription({ userId, ...subscriptionData });
             }
           }
         }
@@ -70,17 +67,14 @@ export async function POST(req: NextRequest) {
       case "customer.subscription.updated":
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
-        await prisma.subscription.updateMany({
-          where: { stripeSubscriptionId: subscription.id },
-          data: {
-            status:
-              subscription.status === "active"
-                ? "ACTIVE"
-                : subscription.status === "trialing"
-                  ? "TRIALING"
-                  : "CANCELED",
-            cancelAtPeriodEnd: subscription.cancel_at_period_end,
-          },
+        await updateSubscriptionsByStripeId(subscription.id, {
+          status:
+            subscription.status === "active"
+              ? "ACTIVE"
+              : subscription.status === "trialing"
+                ? "TRIALING"
+                : "CANCELED",
+          cancelAtPeriodEnd: subscription.cancel_at_period_end,
         });
         break;
       }

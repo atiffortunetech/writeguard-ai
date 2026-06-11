@@ -1,47 +1,39 @@
-import type { PlanTier } from "@/generated/prisma/client";
-import type { Prisma } from "@/generated/prisma/client";
+import type { PlanTier } from "@/types/database";
+import {
+  countAIRequestLogs,
+  countBrandImagesByUserId,
+  countDocuments,
+  createAIRequestLog,
+  createUsageLog,
+  findActiveSubscription,
+  findUserById,
+} from "@/lib/db";
 import { PLAN_DEFINITIONS } from "@/lib/stripe";
 
 /** App admins bypass all plan limits (unlimited AI, documents, team, etc.) */
 export async function isAppAdmin(userId: string): Promise<boolean> {
-  const { prisma } = await import("@/lib/prisma");
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { role: true },
-  });
+  const user = await findUserById(userId);
   return user?.role === "ADMIN";
 }
 
 export async function getUserPlanTier(userId: string): Promise<PlanTier> {
-  const { prisma } = await import("@/lib/prisma");
-
   if (await isAppAdmin(userId)) {
     return "ENTERPRISE";
   }
 
-  const subscription = await prisma.subscription.findFirst({
-    where: {
-      userId,
-      status: { in: ["ACTIVE", "TRIALING"] },
-    },
-    include: { plan: true },
-    orderBy: { createdAt: "desc" },
-  });
+  const subscription = await findActiveSubscription(userId);
 
   return subscription?.plan.tier ?? "FREE";
 }
 
 export async function getUserUsageThisMonth(userId: string) {
-  const { prisma } = await import("@/lib/prisma");
   const startOfMonth = new Date();
   startOfMonth.setDate(1);
   startOfMonth.setHours(0, 0, 0, 0);
 
   const [aiRequests, documents] = await Promise.all([
-    prisma.aIRequestLog.count({
-      where: { userId, createdAt: { gte: startOfMonth } },
-    }),
-    prisma.document.count({ where: { userId } }),
+    countAIRequestLogs({ userId, since: startOfMonth }),
+    countDocuments(userId),
   ]);
 
   return { aiRequests, documents };
@@ -100,20 +92,16 @@ export async function logAIRequest(params: {
   errorMessage?: string;
   durationMs?: number;
 }) {
-  const { prisma } = await import("@/lib/prisma");
-  await prisma.aIRequestLog.create({ data: params });
+  await createAIRequestLog(params);
 }
 
 export async function logUsage(
   userId: string,
   action: string,
   quantity = 1,
-  metadata?: Prisma.InputJsonValue
+  metadata?: Record<string, unknown> | null
 ) {
-  const { prisma } = await import("@/lib/prisma");
-  await prisma.usageLog.create({
-    data: { userId, action, quantity, metadata: metadata ?? undefined },
-  });
+  await createUsageLog({ userId, action, quantity, metadata: metadata ?? null });
 }
 
 export const BRAND_IMAGE_CREDIT_COST = Number(
@@ -150,19 +138,11 @@ export async function checkBrandImageGenerationAllowed(userId: string): Promise<
     };
   }
 
-  const { prisma } = await import("@/lib/prisma");
-
-  if (!("brandImage" in prisma) || !prisma.brandImage) {
-    return { allowed: true, creditCost, imagesRemaining: undefined };
-  }
-
   const startOfMonth = new Date();
   startOfMonth.setDate(1);
   startOfMonth.setHours(0, 0, 0, 0);
 
-  const imagesThisMonth = await prisma.brandImage.count({
-    where: { userId, createdAt: { gte: startOfMonth } },
-  });
+  const imagesThisMonth = await countBrandImagesByUserId(userId, startOfMonth);
 
   if (imageLimit > 0 && imagesThisMonth >= imageLimit) {
     return {

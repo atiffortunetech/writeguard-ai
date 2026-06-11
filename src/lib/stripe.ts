@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import type { PlanTier } from "@/generated/prisma/client";
+import type { PlanTier } from "@/types/database";
 
 export const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY)

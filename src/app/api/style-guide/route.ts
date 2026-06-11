@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { createStyleGuide, listStyleGuidesByUserId } from "@/lib/db";
 import { styleGuideSchema } from "@/lib/validations";
 import { requireApiAuth, apiError } from "@/lib/api-utils";
 import { checkFeatureAccess } from "@/lib/plan-features";
@@ -11,10 +11,7 @@ export async function GET() {
   const access = await checkFeatureAccess(auth.session.user.id, "style-guide");
   if (!access.allowed) return apiError(access.reason ?? "Upgrade required", 403);
 
-  const guides = await prisma.styleGuide.findMany({
-    where: { userId: auth.session.user.id },
-    orderBy: { updatedAt: "desc" },
-  });
+  const guides = await listStyleGuidesByUserId(auth.session.user.id);
   return Response.json(guides);
 }
 
@@ -31,8 +28,9 @@ export async function POST(req: NextRequest) {
     return apiError(parsed.error.issues[0]?.message ?? "Invalid input", 400);
   }
 
-  const guide = await prisma.styleGuide.create({
-    data: { ...parsed.data, userId: auth.session.user.id },
+  const guide = await createStyleGuide({
+    ...parsed.data,
+    userId: auth.session.user.id,
   });
   return Response.json(guide, { status: 201 });
 }

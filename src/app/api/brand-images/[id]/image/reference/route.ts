@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { findBrandImageByIdAndUserId } from "@/lib/db";
 import { requireApiAuth, apiError } from "@/lib/api-utils";
 import { readLocalBrandImage } from "@/lib/brand-image-storage";
 
@@ -11,10 +11,7 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
 
   const { id } = await ctx.params;
 
-  const image = await prisma.brandImage.findFirst({
-    where: { id, userId: auth.session.user.id },
-    select: { referenceImageUrl: true },
-  });
+  const image = await findBrandImageByIdAndUserId(id, auth.session.user.id);
 
   if (!image?.referenceImageUrl) return apiError("Reference image not found", 404);
 

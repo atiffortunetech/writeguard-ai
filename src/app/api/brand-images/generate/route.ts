@@ -1,5 +1,10 @@
 import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import {
+  createBrandImage,
+  findDocumentByIdAndUserId,
+  findFirstBrandVoiceByUserId,
+  updateBrandImage,
+} from "@/lib/db";
 import { brandImageGenerateSchema } from "@/lib/validations";
 import { requireApiAuth, apiError } from "@/lib/api-utils";
 import { checkFeatureAccess } from "@/lib/plan-features";
@@ -64,18 +69,14 @@ export async function POST(req: NextRequest) {
   let sourceText = data.sourceText.trim();
 
   if (data.documentId) {
-    const doc = await prisma.document.findFirst({
-      where: { id: data.documentId, userId: auth.session.user.id },
-    });
+    const doc = await findDocumentByIdAndUserId(data.documentId, auth.session.user.id);
     if (!doc) return apiError("Document not found", 404);
     sourceText = doc.plainText || doc.content.replace(/<[^>]+>/g, " ").slice(0, 8000);
   }
 
   let brandVoiceContext: string | undefined;
   if (data.brandVoiceId) {
-    const bv = await prisma.brandVoice.findFirst({
-      where: { id: data.brandVoiceId, userId: auth.session.user.id },
-    });
+    const bv = await findFirstBrandVoiceByUserId(auth.session.user.id, data.brandVoiceId);
     if (bv) {
       brandVoiceContext = formatBrandVoiceContext(bv as BrandVoiceContext);
     }
@@ -120,20 +121,18 @@ export async function POST(req: NextRequest) {
       reference
     );
 
-    const record = await prisma.brandImage.create({
-      data: {
-        userId: auth.session.user.id,
-        title: data.title || promptResult.title,
-        sourceType: data.sourceType,
-        sourceText: sourceText.slice(0, 5000),
-        imagePrompt: promptResult.imagePrompt,
-        colors: data.colors,
-        stylePreset: data.stylePreset,
-        aspectRatio: data.aspectRatio,
-        imageUrl: "",
-        brandVoiceId: data.brandVoiceId ?? null,
-        provider: "openai",
-      },
+    const record = await createBrandImage({
+      userId: auth.session.user.id,
+      title: data.title || promptResult.title,
+      sourceType: data.sourceType,
+      sourceText: sourceText.slice(0, 5000),
+      imagePrompt: promptResult.imagePrompt,
+      colors: data.colors,
+      stylePreset: data.stylePreset,
+      aspectRatio: data.aspectRatio,
+      imageUrl: "",
+      brandVoiceId: data.brandVoiceId ?? null,
+      provider: "openai",
     });
 
     const { imageUrl, storagePath } = await saveBrandImageFile(
@@ -156,15 +155,12 @@ export async function POST(req: NextRequest) {
       referenceStoragePath = refSaved.storagePath;
     }
 
-    const updated = await prisma.brandImage.update({
-      where: { id: record.id },
-      data: {
-        imageUrl,
-        storagePath,
-        mimeType,
-        referenceImageUrl,
-        referenceStoragePath,
-      },
+    const updated = await updateBrandImage(record.id, {
+      imageUrl,
+      storagePath,
+      mimeType,
+      referenceImageUrl,
+      referenceStoragePath,
     });
 
     await consumeBrandImageCredits(

@@ -1,5 +1,12 @@
 import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import {
+  createVerificationToken,
+  deleteVerificationToken,
+  deleteVerificationTokensByIdentifier,
+  findUserByEmail,
+  findVerificationTokenByToken,
+  updateUser,
+} from "@/lib/db";
 import { forgotPasswordSchema, resetPasswordSchema } from "@/lib/validations";
 import { sendPasswordResetEmail } from "@/lib/email";
 import { apiError } from "@/lib/api-utils";
@@ -13,9 +20,7 @@ export async function POST(req: NextRequest) {
     return apiError(parsed.error.issues[0]?.message ?? "Invalid input", 400);
   }
 
-  const user = await prisma.user.findUnique({
-    where: { email: parsed.data.email },
-  });
+  const user = await findUserByEmail(parsed.data.email);
 
   // Always return success to prevent email enumeration
   if (!user) {
@@ -25,16 +30,12 @@ export async function POST(req: NextRequest) {
   const token = randomBytes(32).toString("hex");
   const expires = new Date(Date.now() + 60 * 60 * 1000);
 
-  await prisma.verificationToken.deleteMany({
-    where: { identifier: `reset:${parsed.data.email}` },
-  });
+  await deleteVerificationTokensByIdentifier(`reset:${parsed.data.email}`);
 
-  await prisma.verificationToken.create({
-    data: {
-      identifier: `reset:${parsed.data.email}`,
-      token,
-      expires,
-    },
+  await createVerificationToken({
+    identifier: `reset:${parsed.data.email}`,
+    token,
+    expires,
   });
 
   await sendPasswordResetEmail(parsed.data.email, token);
@@ -49,9 +50,7 @@ export async function PUT(req: NextRequest) {
     return apiError(parsed.error.issues[0]?.message ?? "Invalid input", 400);
   }
 
-  const record = await prisma.verificationToken.findUnique({
-    where: { token: parsed.data.token },
-  });
+  const record = await findVerificationTokenByToken(parsed.data.token);
 
   if (!record || record.expires < new Date() || !record.identifier.startsWith("reset:")) {
     return apiError("Invalid or expired reset token", 400);
@@ -60,12 +59,11 @@ export async function PUT(req: NextRequest) {
   const email = record.identifier.replace("reset:", "");
   const passwordHash = await bcrypt.hash(parsed.data.password, 12);
 
-  await prisma.user.update({
-    where: { email },
-    data: { passwordHash },
-  });
+  const user = await findUserByEmail(email);
+  if (!user) return apiError("Invalid or expired reset token", 400);
+  await updateUser(user.id, { passwordHash });
 
-  await prisma.verificationToken.delete({ where: { token: parsed.data.token } });
+  await deleteVerificationToken(parsed.data.token);
 
   return Response.json({ message: "Password reset successfully" });
 }

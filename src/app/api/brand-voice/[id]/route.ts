@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { brandVoiceSchema } from "@/lib/validations";
-import { prisma } from "@/lib/prisma";
+import {
+  clearDefaultBrandVoices,
+  deleteBrandVoice,
+  findBrandVoiceByIdAndUserId,
+  updateBrandVoice,
+} from "@/lib/db";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -14,9 +19,7 @@ export async function GET(_req: NextRequest, context: RouteContext) {
 
     const { id } = await context.params;
 
-    const brandVoice = await prisma.brandVoice.findFirst({
-      where: { id, userId: session.user.id },
-    });
+    const brandVoice = await findBrandVoiceByIdAndUserId(id, session.user.id);
 
     if (!brandVoice) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -50,25 +53,17 @@ export async function PATCH(req: NextRequest, context: RouteContext) {
       );
     }
 
-    const existing = await prisma.brandVoice.findFirst({
-      where: { id, userId: session.user.id },
-    });
+    const existing = await findBrandVoiceByIdAndUserId(id, session.user.id);
 
     if (!existing) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
     if (parsed.data.isDefault) {
-      await prisma.brandVoice.updateMany({
-        where: { userId: session.user.id },
-        data: { isDefault: false },
-      });
+      await clearDefaultBrandVoices(session.user.id);
     }
 
-    const brandVoice = await prisma.brandVoice.update({
-      where: { id },
-      data: parsed.data,
-    });
+    const brandVoice = await updateBrandVoice(id, parsed.data);
 
     return NextResponse.json(brandVoice);
   } catch (error) {
@@ -89,15 +84,13 @@ export async function DELETE(_req: NextRequest, context: RouteContext) {
 
     const { id } = await context.params;
 
-    const existing = await prisma.brandVoice.findFirst({
-      where: { id, userId: session.user.id },
-    });
+    const existing = await findBrandVoiceByIdAndUserId(id, session.user.id);
 
     if (!existing) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    await prisma.brandVoice.delete({ where: { id } });
+    await deleteBrandVoice(id);
 
     return NextResponse.json({ success: true });
   } catch (error) {

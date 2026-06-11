@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { stripe, isStripeConfigured, PLAN_DEFINITIONS } from "@/lib/stripe";
-import { prisma } from "@/lib/prisma";
+import {
+  createSubscription,
+  findPlanByTier,
+  findSubscriptionByUserId,
+  updateSubscription,
+} from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   try {
@@ -39,9 +44,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let subscription = await prisma.subscription.findFirst({
-      where: { userId: session.user.id },
-    });
+    const subscription = await findSubscriptionByUserId(session.user.id);
 
     let customerId = subscription?.stripeCustomerId;
 
@@ -52,6 +55,9 @@ export async function POST(req: NextRequest) {
         metadata: { userId: session.user.id },
       });
       customerId = customer.id;
+      if (subscription) {
+        await updateSubscription(subscription.id, { stripeCustomerId: customerId });
+      }
     }
 
     const checkoutSession = await stripe.checkout.sessions.create({
@@ -66,6 +72,19 @@ export async function POST(req: NextRequest) {
         tier,
       },
     });
+
+    if (!subscription) {
+      const plan = await findPlanByTier(tier as "PRO" | "BUSINESS");
+      if (!plan) {
+        return NextResponse.json({ error: "Plan not found" }, { status: 404 });
+      }
+      await createSubscription({
+        userId: session.user.id,
+        planId: plan.id,
+        stripeCustomerId: customerId,
+        status: "INCOMPLETE",
+      });
+    }
 
     return NextResponse.json({ url: checkoutSession.url });
   } catch (error) {

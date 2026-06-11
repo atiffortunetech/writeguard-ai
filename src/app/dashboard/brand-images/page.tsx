@@ -161,7 +161,7 @@ export default function BrandImagesPage() {
       .then(async (r) => {
         const text = await r.text();
         if (!text) {
-          setError("Empty response from server. Restart dev server after running: npx prisma db push");
+          setError("Empty response from server. Restart the dev server and try again.");
           return;
         }
         let data: StudioData;

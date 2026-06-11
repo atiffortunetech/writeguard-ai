@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { createTemplate, listTemplates } from "@/lib/db";
 import { requireApiAuth } from "@/lib/api-utils";
 import { getUserPlanTier } from "@/lib/usage";
 
@@ -8,10 +8,7 @@ export async function GET() {
   if ("error" in auth) return auth.error;
 
   const tier = await getUserPlanTier(auth.session.user.id);
-  const templates = await prisma.template.findMany({
-    where: { isActive: true },
-    orderBy: [{ category: "asc" }, { name: "asc" }],
-  });
+  const templates = await listTemplates({ activeOnly: true });
 
   const filtered = templates.filter((t) => !t.isPremium || tier !== "FREE");
   return Response.json(filtered);
@@ -25,6 +22,6 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const template = await prisma.template.create({ data: body });
+  const template = await createTemplate(body);
   return Response.json(template, { status: 201 });
 }

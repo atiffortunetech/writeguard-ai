@@ -1,5 +1,8 @@
 import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import {
+  createAIDetectionCheck,
+  listAIDetectionChecksByUserId,
+} from "@/lib/db";
 import { aiDetectionSchema } from "@/lib/validations";
 import { getAIDetectionProvider, AI_DETECTION_DISCLAIMER } from "@/providers/ai-detection";
 import { requireApiAuth, apiError } from "@/lib/api-utils";
@@ -42,17 +45,15 @@ export async function POST(req: NextRequest) {
   try {
     const result = await provider.detectAI(parsed.data.text);
 
-    const check = await prisma.aIDetectionCheck.create({
-      data: {
-        userId: auth.session.user.id,
-        content: parsed.data.text.slice(0, 10000),
-        aiProbability: result.aiProbability,
-        humanProbability: result.humanProbability,
-        mixedEstimate: result.mixedEstimate,
-        highlights: result.highlights,
-        provider: result.provider,
-        status: "completed",
-      },
+    const check = await createAIDetectionCheck({
+      userId: auth.session.user.id,
+      content: parsed.data.text.slice(0, 10000),
+      aiProbability: result.aiProbability,
+      humanProbability: result.humanProbability,
+      mixedEstimate: result.mixedEstimate,
+      highlights: result.highlights,
+      provider: result.provider,
+      status: "completed",
     });
 
     await logUsage(auth.session.user.id, "ai_detection_check");
@@ -87,18 +88,8 @@ export async function GET() {
   const auth = await requireApiAuth();
   if ("error" in auth) return auth.error;
 
-  const checks = await prisma.aIDetectionCheck.findMany({
-    where: { userId: auth.session.user.id },
-    orderBy: { createdAt: "desc" },
-    take: 20,
-    select: {
-      id: true,
-      aiProbability: true,
-      humanProbability: true,
-      provider: true,
-      status: true,
-      createdAt: true,
-    },
+  const checks = await listAIDetectionChecksByUserId(auth.session.user.id, {
+    limit: 20,
   });
 
   const provider = getAIDetectionProvider();

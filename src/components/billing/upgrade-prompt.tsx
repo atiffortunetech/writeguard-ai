@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Lock, Sparkles } from "lucide-react";
-import type { PlanTier } from "@/generated/prisma/client";
+import type { PlanTier } from "@/types/database";
 import { PLAN_DEFINITIONS } from "@/lib/stripe";
 
 export function UpgradePrompt({

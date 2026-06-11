@@ -1,4 +1,8 @@
-import { prisma } from "@/lib/prisma";
+import {
+  findDocumentsByUserId,
+  listBrandImagesByUserId,
+  listBrandVoicesByUserId,
+} from "@/lib/db";
 import { requireApiAuth, apiError } from "@/lib/api-utils";
 import { checkBrandImageGenerationAllowed } from "@/lib/usage";
 import { isBrandImageConfigured } from "@/providers/ai/brand-image-service";
@@ -10,36 +14,11 @@ export async function GET() {
 
     const limits = await checkBrandImageGenerationAllowed(auth.session.user.id);
 
-    const images = await prisma.brandImage.findMany({
-      where: { userId: auth.session.user.id },
-      orderBy: { createdAt: "desc" },
-      take: 24,
-      select: {
-        id: true,
-        title: true,
-        imageUrl: true,
-        imagePrompt: true,
-        colors: true,
-        stylePreset: true,
-        aspectRatio: true,
-        sourceType: true,
-        referenceImageUrl: true,
-        createdAt: true,
-      },
-    });
+    const images = await listBrandImagesByUserId(auth.session.user.id, { limit: 24 });
 
-    const brandVoices = await prisma.brandVoice.findMany({
-      where: { userId: auth.session.user.id },
-      select: { id: true, name: true, tone: true },
-      orderBy: { updatedAt: "desc" },
-    });
+    const brandVoices = await listBrandVoicesByUserId(auth.session.user.id);
 
-    const documents = await prisma.document.findMany({
-      where: { userId: auth.session.user.id },
-      select: { id: true, title: true },
-      orderBy: { updatedAt: "desc" },
-      take: 50,
-    });
+    const documents = await findDocumentsByUserId(auth.session.user.id, "summary");
 
     return Response.json({
       configured: isBrandImageConfigured(),

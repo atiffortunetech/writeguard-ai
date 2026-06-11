@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { brandVoiceSchema } from "@/lib/validations";
-import { prisma } from "@/lib/prisma";
+import {
+  clearDefaultBrandVoices,
+  countBrandVoicesByUserId,
+  createBrandVoice,
+  listBrandVoicesByUserId,
+} from "@/lib/db";
 import { getUserPlanTier } from "@/lib/usage";
 import { PLAN_DEFINITIONS } from "@/lib/stripe";
 
@@ -12,10 +17,7 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const brandVoices = await prisma.brandVoice.findMany({
-      where: { userId: session.user.id },
-      orderBy: [{ isDefault: "desc" }, { updatedAt: "desc" }],
-    });
+    const brandVoices = await listBrandVoicesByUserId(session.user.id);
 
     return NextResponse.json(brandVoices);
   } catch (error) {
@@ -45,9 +47,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (limits.maxBrandVoices > 0) {
-      const count = await prisma.brandVoice.count({
-        where: { userId: session.user.id },
-      });
+      const count = await countBrandVoicesByUserId(session.user.id);
       if (count >= limits.maxBrandVoices) {
         return NextResponse.json(
           { error: `Brand voice limit reached (${limits.maxBrandVoices}).` },
@@ -69,17 +69,24 @@ export async function POST(req: NextRequest) {
     const data = parsed.data;
 
     if (data.isDefault) {
-      await prisma.brandVoice.updateMany({
-        where: { userId: session.user.id },
-        data: { isDefault: false },
-      });
+      await clearDefaultBrandVoices(session.user.id);
     }
 
-    const brandVoice = await prisma.brandVoice.create({
-      data: {
-        ...data,
-        userId: session.user.id,
-      },
+    const brandVoice = await createBrandVoice({
+      name: data.name,
+      brandName: data.brandName ?? null,
+      targetAudience: data.targetAudience ?? null,
+      tone: data.tone ?? null,
+      wordsToUse: data.wordsToUse,
+      wordsToAvoid: data.wordsToAvoid,
+      writingStyle: data.writingStyle ?? null,
+      exampleContent: data.exampleContent ?? null,
+      personality: data.personality ?? null,
+      industry: data.industry ?? null,
+      contentGoals: data.contentGoals ?? null,
+      workspaceId: data.workspaceId ?? null,
+      isDefault: data.isDefault,
+      userId: session.user.id,
     });
 
     return NextResponse.json(brandVoice, { status: 201 });

@@ -1,49 +1,23 @@
-import { Pool } from "pg";
-
-function isSupabaseUrl(connectionString: string): boolean {
-  return (
-    connectionString.includes("supabase.co") ||
-    connectionString.includes("supabase.com")
-  );
-}
+import { getPool } from "@/lib/db/connection";
 
 export async function GET() {
-  const connectionString = process.env.DATABASE_URL;
-
-  if (!connectionString) {
-    return Response.json(
-      {
-        ok: false,
-        database: "error",
-        message: "DATABASE_URL is not set on the server",
-      },
-      { status: 503 }
-    );
-  }
-
-  const pool = new Pool({
-    connectionString,
-    max: 1,
-    connectionTimeoutMillis: 8_000,
-    ...(isSupabaseUrl(connectionString)
-      ? { ssl: { rejectUnauthorized: false } }
-      : {}),
-  });
-
   try {
+    const pool = getPool();
     await pool.query("SELECT 1");
     return Response.json({ ok: true, database: "connected" });
   } catch (err) {
     console.error("Database health check failed:", err);
+    const message = err instanceof Error ? err.message : "Unknown database error";
     return Response.json(
       {
         ok: false,
         database: "error",
-        message: err instanceof Error ? err.message : "Unknown database error",
+        message,
+        hint: message.includes("not configured")
+          ? "Set DATABASE_URL=mysql://... or MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE on Hostinger"
+          : undefined,
       },
       { status: 503 }
     );
-  } finally {
-    await pool.end().catch(() => undefined);
   }
 }

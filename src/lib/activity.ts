@@ -1,13 +1,12 @@
-import type { ActivityType } from "@/generated/prisma/client";
-import type { Prisma } from "@/generated/prisma/client";
-import { prisma } from "@/lib/prisma";
+import { createActivityLog } from "@/lib/db";
+import type { ActivityType } from "@/types/database";
 
 export async function logActivity(params: {
   userId: string;
   type: ActivityType;
   description: string;
   workspaceId?: string;
-  metadata?: Prisma.InputJsonValue;
+  metadata?: Record<string, unknown> | null;
 }) {
-  await prisma.activityLog.create({ data: params });
+  await createActivityLog(params);
 }

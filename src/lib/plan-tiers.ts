@@ -1,4 +1,4 @@
-import type { PlanTier } from "@/generated/prisma/client";
+import type { PlanTier } from "@/types/database";
 
 export const TIER_RANK: Record<PlanTier, number> = {
   FREE: 0,

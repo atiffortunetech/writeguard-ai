@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { documentSchema } from "@/lib/validations";
-import { prisma } from "@/lib/prisma";
+import { createDocument, createVersion, findDocuments } from "@/lib/db";
 import { checkUsageLimit } from "@/lib/usage";
 import { countWords } from "@/lib/utils";
 
@@ -12,18 +12,7 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const documents = await prisma.document.findMany({
-      where: { userId: session.user.id },
-      orderBy: { updatedAt: "desc" },
-      take: 50,
-      select: {
-        id: true,
-        title: true,
-        wordCount: true,
-        updatedAt: true,
-        createdAt: true,
-      },
-    });
+    const documents = await findDocuments(session.user.id, { limit: 50 });
 
     return NextResponse.json(documents);
   } catch (error) {
@@ -62,29 +51,25 @@ export async function POST(req: NextRequest) {
 
     const wordCount = countWords(plainText || content);
 
-    const document = await prisma.document.create({
-      data: {
-        title,
-        content,
-        plainText: plainText || content,
-        userId: session.user.id,
-        brandVoiceId,
-        styleGuideId,
-        workspaceId,
-        isConfidential,
-        wordCount,
-        characterCount: (plainText || content).length,
-      },
+    const document = await createDocument({
+      title,
+      content,
+      plainText: plainText || content,
+      userId: session.user.id,
+      brandVoiceId,
+      styleGuideId,
+      workspaceId,
+      isConfidential,
+      wordCount,
+      characterCount: (plainText || content).length,
     });
 
-    await prisma.documentVersion.create({
-      data: {
-        documentId: document.id,
-        userId: session.user.id,
-        content: document.content,
-        plainText: document.plainText,
-        version: 1,
-      },
+    await createVersion({
+      documentId: document.id,
+      userId: session.user.id,
+      content: document.content,
+      plainText: document.plainText,
+      version: 1,
     });
 
     return NextResponse.json(document, { status: 201 });

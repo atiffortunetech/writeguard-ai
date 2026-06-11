@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { countDocuments, listAIRequestLogsByUserId } from "@/lib/db";
 import { getUserUsageThisMonth, getUserPlanTier } from "@/lib/usage";
 import { PLAN_DEFINITIONS } from "@/lib/stripe";
 import { DashboardHeader } from "@/components/dashboard/header";
@@ -13,12 +13,8 @@ export default async function WritingAnalyticsPage() {
   const [usage, tier, recentLogs, docCount] = await Promise.all([
     getUserUsageThisMonth(userId),
     getUserPlanTier(userId),
-    prisma.aIRequestLog.findMany({
-      where: { userId },
-      orderBy: { createdAt: "desc" },
-      take: 10,
-    }),
-    prisma.document.count({ where: { userId } }),
+    listAIRequestLogsByUserId(userId, { limit: 10 }),
+    countDocuments(userId),
   ]);
 
   const plan = PLAN_DEFINITIONS[tier];

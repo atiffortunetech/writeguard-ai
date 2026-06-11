@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { findFirstBrandVoiceByUserId, findTemplateBySlug } from "@/lib/db";
 import { contentGenerateSchema } from "@/lib/validations";
 import { getAIProvider, isAIConfigured } from "@/providers/ai";
 import { requireApiAuth, apiError } from "@/lib/api-utils";
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest, ctx: Ctx) {
   if (!access.allowed) return apiError(access.reason ?? "Upgrade required", 403);
 
   const { slug } = await ctx.params;
-  const template = await prisma.template.findUnique({ where: { slug } });
+  const template = await findTemplateBySlug(slug);
   if (!template) return apiError("Template not found", 404);
 
   const body = await req.json();
@@ -37,9 +37,10 @@ export async function POST(req: NextRequest, ctx: Ctx) {
 
   let brandVoice;
   if (parsed.data.brandVoiceId) {
-    brandVoice = await prisma.brandVoice.findFirst({
-      where: { id: parsed.data.brandVoiceId, userId: auth.session.user.id },
-    });
+    brandVoice = await findFirstBrandVoiceByUserId(
+      auth.session.user.id,
+      parsed.data.brandVoiceId
+    );
   }
 
   const provider = getAIProvider();
