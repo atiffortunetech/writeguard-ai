@@ -1,4 +1,8 @@
-import { getPool, queryOne } from "@/lib/db/connection";
+import {
+  getDbConfigSummary,
+  getPool,
+  queryOne,
+} from "@/lib/db/connection";
 
 const TIMEOUT_MS = 8_000;
 
@@ -12,6 +16,8 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
 }
 
 export async function GET() {
+  const config = getDbConfigSummary();
+
   try {
     const pool = getPool();
     await withTimeout(pool.query("SELECT 1"), TIMEOUT_MS);
@@ -33,6 +39,7 @@ export async function GET() {
     return Response.json({
       ok: true,
       database: "connected",
+      config,
       tables: {
         users: Boolean(usersTable),
         plans: Boolean(plansTable),
@@ -41,19 +48,31 @@ export async function GET() {
   } catch (err) {
     console.error("Database health check failed:", err);
     const message = err instanceof Error ? err.message : "Unknown database error";
+
+    let hint: string | undefined;
+    if (config.hasStalePostgresUrl) {
+      hint = "Delete the old PostgreSQL DATABASE_URL from Hostinger env vars.";
+    } else if (config.hasConflictingUrls) {
+      hint =
+        "You have both DATABASE_URL and MYSQL_* set. Remove DATABASE_URL or fix its password — it overrides MYSQL_*.";
+    } else if (message.includes("Access denied")) {
+      hint =
+        "Password rejected by MySQL. In Hostinger → Databases → reset the MySQL user password, paste the NEW password into MYSQL_PASSWORD (no quotes), then Restart the app.";
+    } else if (message.includes("timed out") || message.includes("ETIMEDOUT")) {
+      hint = "Try MYSQL_HOST=127.0.0.1 and restart the Node.js app from Hostinger.";
+    } else if (message.includes("ECONNREFUSED")) {
+      hint = "MySQL not reachable. Confirm MYSQL_HOST=127.0.0.1 and restart the app.";
+    } else if (message.includes("Unknown database")) {
+      hint = "Wrong MYSQL_DATABASE name. Must match exactly (e.g. u998538981_writeguard).";
+    }
+
     return Response.json(
       {
         ok: false,
         database: "error",
         message,
-        hint:
-          message.includes("timed out") || message.includes("ETIMEDOUT")
-            ? "Wrong MYSQL_HOST on Hostinger. Try 127.0.0.1 or the hostname from Databases → Details (not localhost)."
-            : message.includes("doesn't exist") || message.includes("Unknown table")
-              ? "Import mysql/writeguard-full-setup.sql in phpMyAdmin."
-              : message.includes("Access denied")
-                ? "Wrong MYSQL_PASSWORD, or set MYSQL_HOST=127.0.0.1 (not localhost — avoids IPv6 ::1)."
-                : undefined,
+        config,
+        hint,
       },
       { status: 503 }
     );

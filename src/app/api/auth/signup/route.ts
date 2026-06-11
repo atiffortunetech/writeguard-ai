@@ -61,10 +61,21 @@ export async function POST(req: NextRequest) {
     }
 
     if (
+      message.includes("Access denied")
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "MySQL rejected the password. Reset the database user password in Hostinger → Databases, update MYSQL_PASSWORD, then Restart the app.",
+        },
+        { status: 503 }
+      );
+    }
+
+    if (
       message.includes("timed out") ||
       message.includes("ETIMEDOUT") ||
-      message.includes("ECONNREFUSED") ||
-      message.includes("Access denied")
+      message.includes("ECONNREFUSED")
     ) {
       return NextResponse.json(
         {
