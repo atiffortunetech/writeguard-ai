@@ -43,7 +43,10 @@ export const SMART_REWRITE_MODES = [
 
 export type SmartRewriteModeId = (typeof SMART_REWRITE_MODES)[number]["id"];
 
-export const SMART_REWRITE_MODE_IDS = SMART_REWRITE_MODES.map((m) => m.id);
+export const SMART_REWRITE_MODE_IDS = SMART_REWRITE_MODES.map((m) => m.id) as [
+  SmartRewriteModeId,
+  ...SmartRewriteModeId[],
+];
 
 export function getSmartRewriteInstruction(mode: SmartRewriteModeId): string {
   const map: Record<SmartRewriteModeId, string> = {

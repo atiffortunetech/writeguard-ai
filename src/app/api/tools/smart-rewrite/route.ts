@@ -10,7 +10,7 @@ import { SMART_REWRITE_MODE_IDS } from "@/lib/smart-rewrite-modes";
 
 const schema = z.object({
   text: z.string().min(1).max(50000),
-  mode: z.enum(SMART_REWRITE_MODE_IDS as unknown as [string, ...string[]]),
+  mode: z.enum(SMART_REWRITE_MODE_IDS),
 });
 
 export async function POST(req: NextRequest) {
