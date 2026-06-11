@@ -52,7 +52,7 @@ export async function GET() {
             : message.includes("doesn't exist") || message.includes("Unknown table")
               ? "Import mysql/writeguard-full-setup.sql in phpMyAdmin."
               : message.includes("Access denied")
-                ? "Wrong MYSQL_USER or MYSQL_PASSWORD."
+                ? "Wrong MYSQL_PASSWORD, or set MYSQL_HOST=127.0.0.1 (not localhost — avoids IPv6 ::1)."
                 : undefined,
       },
       { status: 503 }

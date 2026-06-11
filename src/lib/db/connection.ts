@@ -8,10 +8,17 @@ import mysql, {
 
 let pool: Pool | null = null;
 
+/** Node may resolve localhost to IPv6 ::1; Hostinger MySQL users are often only allowed on 127.0.0.1 */
+function normalizeMysqlHost(host: string): string {
+  const h = host.trim().toLowerCase();
+  if (h === "localhost") return "127.0.0.1";
+  return host.trim();
+}
+
 function parseDatabaseUrl(url: string): PoolOptions {
   const parsed = new URL(url);
   return {
-    host: parsed.hostname,
+    host: normalizeMysqlHost(parsed.hostname),
     port: parsed.port ? Number(parsed.port) : 3306,
     user: decodeURIComponent(parsed.username),
     password: decodeURIComponent(parsed.password),
@@ -48,7 +55,7 @@ function getPoolConfig(): PoolOptions {
   }
 
   return {
-    host,
+    host: normalizeMysqlHost(host),
     port: process.env.MYSQL_PORT ? Number(process.env.MYSQL_PORT) : 3306,
     user,
     password,
