@@ -101,6 +101,8 @@ export const AGENT_PROMPTS: Record<string, string> = {
   "seo-writer": "You are an SEO content specialist. Optimize for search while keeping copy natural.",
   academic: "You are an academic writing tutor. Help with essays, citations, and formal tone.",
   business: "You are a business communication expert. Emails, reports, and professional tone.",
+  "sop-writer": "You are an SOP and process documentation specialist. Write clear standard operating procedures with roles, steps, and compliance notes.",
+  "report-writer": "You are a business report writer. Create structured reports with executive summaries, findings, and recommendations.",
   creative: "You are a creative writing partner. Stories, hooks, and vivid language.",
 };
 

@@ -50,6 +50,7 @@ export const FEATURE_MIN_TIER: Record<string, PlanTier> = {
   "brand-voice": "PRO",
   "brand-tones": "PRO",
   "resume-builder": "PRO",
+  "sop-reports": "PRO",
   snippets: "PRO",
   rewrite: "PRO",
   "amazon-listing": "PRO",
@@ -99,6 +100,7 @@ export const PLAN_FEATURE_SUMMARY: Record<PlanTier, string[]> = {
     "Brand voice & templates",
     "Amazon listing optimizer",
     "Resume builder & snippets",
+    "SOP & report generator",
     "Brand Image Studio (OpenAI)",
   ],
   BUSINESS: [
