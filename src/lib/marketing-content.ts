@@ -17,8 +17,102 @@ import {
   PenLine,
   Sparkles,
   Brain,
+  FileText,
+  Languages,
+  ImageIcon,
+  ClipboardList,
   type LucideIcon,
 } from "lucide-react";
+import { WRITING_TOOLS } from "@/lib/tools-registry";
+import { FEATURE_MIN_TIER } from "@/lib/plan-tiers";
+import { PLAN_DEFINITIONS } from "@/lib/stripe";
+
+export const FEATURE_HIGHLIGHTS = [
+  {
+    title: "Writing Intelligence",
+    description: "Full scan with grammar, clarity, readability, tone, and AI-risk scores in one panel.",
+    icon: Brain,
+    gradient: "from-violet-600 to-indigo-600",
+    stat: "5-in-1",
+  },
+  {
+    title: "AI Humanizer & Detector",
+    description: "Make AI text sound human and verify authenticity before you publish.",
+    icon: Wand2,
+    gradient: "from-fuchsia-600 to-pink-600",
+    stat: "Pro",
+  },
+  {
+    title: "30+ Writing Tools",
+    description: "Grammar, paraphrase, citations, resume builder, SOP generator, and more.",
+    icon: Sparkles,
+    gradient: "from-cyan-500 to-blue-600",
+    stat: "30+",
+  },
+  {
+    title: "Team & Brand",
+    description: "Brand voice, style guides, shared workspaces, and writing analytics.",
+    icon: Users,
+    gradient: "from-emerald-500 to-teal-600",
+    stat: "Business",
+  },
+];
+
+/** Every tool/feature for marketing bento grid */
+export const ALL_MARKETING_FEATURES = WRITING_TOOLS.filter(
+  (t) => !["tools-hub", "ai-writing-tools", "editor"].includes(t.slug)
+).map((tool) => {
+  const tier = FEATURE_MIN_TIER[tool.slug] ?? "PRO";
+  return {
+    slug: tool.slug,
+    title: tool.title,
+    description: tool.description,
+    icon: tool.icon,
+    tier: PLAN_DEFINITIONS[tier].name,
+    category: tool.category,
+  };
+});
+
+/** Extra platform features not in tools registry */
+export const PLATFORM_FEATURES = [
+  {
+    slug: "writing-intelligence",
+    title: "Writing Intelligence Scan",
+    description: "Deep analysis: grammar, clarity, tone, readability, and AI detection scores.",
+    icon: Brain,
+    tier: "Free",
+  },
+  {
+    slug: "brand-images",
+    title: "Brand Image Studio",
+    description: "AI-generated brand visuals with OpenAI image models.",
+    icon: ImageIcon,
+    tier: "Pro",
+  },
+  {
+    slug: "amazon-listing",
+    title: "Amazon Listing Optimizer",
+    description: "SEO titles, bullets, descriptions, and backend search terms.",
+    icon: ShoppingBag,
+    tier: "Pro",
+  },
+  {
+    slug: "documents",
+    title: "Smart Document Editor",
+    description: "Rich editor with versions, folders, suggestions, and score panel.",
+    icon: PenLine,
+    tier: "Free",
+  },
+  {
+    slug: "templates-hub",
+    title: "Content Templates",
+    description: "Blogs, emails, ads, landing pages, and social posts.",
+    icon: BookOpen,
+    tier: "Pro",
+  },
+];
+
+export const FULL_FEATURE_LIST = [...ALL_MARKETING_FEATURES, ...PLATFORM_FEATURES];
 
 export const TRUST_STATS = {
   headline: "Trusted by writers, teams, and sellers worldwide",
@@ -165,6 +259,7 @@ export const NAV_GROUPS: NavGroup[] = [
           { label: "AI Chat", href: "/tools#ai-chat" },
           { label: "Resume Builder", href: "/tools#resume-builder" },
           { label: "Citation Generator", href: "/tools#citation-generator" },
+          { label: "SOP & Reports", href: "/tools#sop-reports" },
           { label: "Word Counter", href: "/tools#word-counter" },
         ],
       },
@@ -173,6 +268,14 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     label: "Pricing",
     href: "/pricing",
+  },
+  {
+    label: "Solutions",
+    href: "/solutions",
+  },
+  {
+    label: "About",
+    href: "/about",
   },
 ];
 
@@ -246,6 +349,30 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
     ],
   },
   {
+    id: "productivity",
+    title: "Productivity & docs",
+    description: "SOPs, reports, resumes, and reusable snippets.",
+    icon: FileText,
+    features: [
+      { title: "SOP & Report Generator", description: "Generate SOPs, business reports, summary reports, and process guides from any topic." },
+      { title: "Resume builder", description: "Structured sections with AI-powered bullet points." },
+      { title: "Snippets", description: "Reusable text blocks for faster writing." },
+      { title: "Writing analytics", description: "Track usage, credits, and productivity." },
+    ],
+  },
+  {
+    id: "intelligence",
+    title: "Writing intelligence",
+    description: "See your writing quality at a glance.",
+    icon: Brain,
+    features: [
+      { title: "Intelligence scan", description: "Grammar, clarity, tone, readability, and AI-risk scores in one panel." },
+      { title: "Smart Rewrite", description: "8 rewrite modes — professional, shorter, persuasive, academic & more." },
+      { title: "Translator", description: "40+ languages with formality and domain control." },
+      { title: "Brand Image Studio", description: "AI-generated brand visuals with OpenAI." },
+    ],
+  },
+  {
     id: "agents",
     title: "Specialized agents",
     description: "Purpose-built tools for specific writing jobs.",
@@ -288,6 +415,7 @@ export const FOOTER_COLUMNS = [
     title: "Product",
     links: [
       { label: "Features", href: "/features" },
+      { label: "Solutions", href: "/solutions" },
       { label: "All tools", href: "/tools" },
       { label: "Pricing", href: "/pricing" },
       { label: "Editor", href: "/signup" },
@@ -316,6 +444,7 @@ export const FOOTER_COLUMNS = [
   {
     title: "Company",
     links: [
+      { label: "About", href: "/about" },
       { label: "Sign up", href: "/signup" },
       { label: "Log in", href: "/login" },
       { label: "Contact sales", href: "mailto:sales@writeguard.ai" },
@@ -341,6 +470,62 @@ export const COMPETITOR_COMPARISON: {
   { feature: "Team workspace", writeguard: true, grammarly: "partial", quillbot: false },
 ];
 
+export const SOLUTIONS = [
+  {
+    id: "individuals",
+    title: "For individuals",
+    description: "Students, creators, and professionals who write every day.",
+    icon: PenLine,
+    features: ["Grammar & spell checking", "AI humanizer & detector", "Resume & essay tools", "SOP & report generator"],
+  },
+  {
+    id: "teams",
+    title: "For teams",
+    description: "Marketing, support, and ops teams that need shared voice.",
+    icon: Users,
+    features: ["Team workspace", "Brand voice profiles", "Style guide enforcement", "Writing analytics"],
+  },
+  {
+    id: "education",
+    title: "For education",
+    description: "Academic integrity and structured writing feedback.",
+    icon: GraduationCap,
+    features: ["Essay checker", "Citation tools", "AI detector", "AI grader"],
+  },
+  {
+    id: "ecommerce",
+    title: "For e-commerce",
+    description: "Amazon sellers and brands optimizing every listing.",
+    icon: ShoppingBag,
+    features: ["Amazon listing optimizer", "Brand image studio", "SEO copy templates", "Tone & brand voice"],
+  },
+  {
+    id: "enterprise",
+    title: "For enterprise",
+    description: "Scale writing quality across departments.",
+    icon: Shield,
+    features: ["Unlimited AI credits", "Admin controls", "Team roles", "Priority support"],
+  },
+  {
+    id: "operations",
+    title: "For operations",
+    description: "Document processes and create reports with AI.",
+    icon: ClipboardList,
+    features: ["SOP generator", "Process guides", "Summary reports", "Business report writer"],
+  },
+];
+
+export const ABOUT_CONTENT = {
+  mission:
+    "WriteGuard AI exists so every writer — solo or on a team — can publish work that is clear, credible, and impossible to ignore. We combine grammar intelligence, responsible AI, and 30+ specialized tools in one workspace built for speed.",
+  values: [
+    { title: "Voice first", description: "AI should sharpen your voice, not replace it." },
+    { title: "Responsible AI", description: "Humanizer, detector, and plagiarism tools with clear disclaimers." },
+    { title: "No empty dashboards", description: "Every feature is one click away — no tab sprawl." },
+    { title: "Privacy by design", description: "Your content is never sold for advertising." },
+  ],
+};
+
 export const WORK_AUDIENCES = [
   { icon: PenLine, title: "Individuals", description: "Students, creators, and professionals who write daily." },
   { icon: Users, title: "Teams & business", description: "Marketing, support, and ops teams that need shared voice." },
@@ -360,6 +545,7 @@ export const QUICK_TOOLS: { slug: string; title: string; icon: LucideIcon; tier:
   { slug: "citation-generator", title: "Citation Generator", icon: Quote, tier: "Pro" },
   { slug: "word-counter", title: "Word Counter", icon: BookOpen, tier: "Free" },
   { slug: "resume-builder", title: "Resume Builder", icon: FileUser, tier: "Pro" },
+  { slug: "sop-reports", title: "SOP & Reports", icon: FileText, tier: "Pro" },
   { slug: "tone-detector", title: "Tone Detector", icon: Mic2, tier: "Free" },
   { slug: "writing-analytics", title: "Writing Analytics", icon: BarChart3, tier: "Business" },
   { slug: "ai-grader", title: "AI Grader", icon: Sparkles, tier: "Business" },

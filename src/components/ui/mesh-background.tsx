@@ -3,11 +3,25 @@
 import { cn } from "@/lib/utils";
 
 interface MeshBackgroundProps {
-  variant?: "light" | "dark" | "dashboard";
+  variant?: "light" | "dark" | "dashboard" | "marketing";
   className?: string;
 }
 
 export function MeshBackground({ variant = "light", className }: MeshBackgroundProps) {
+  if (variant === "marketing") {
+    return (
+      <div
+        aria-hidden
+        className={cn("pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-black", className)}
+      >
+        <div className="absolute -left-1/4 top-[-10%] h-[700px] w-[700px] rounded-full bg-violet-600/20 blur-[140px] animate-mesh-drift" />
+        <div className="absolute -right-1/4 top-1/4 h-[600px] w-[600px] rounded-full bg-cyan-500/15 blur-[120px] animate-mesh-drift-reverse" />
+        <div className="absolute bottom-[-10%] left-1/3 h-[500px] w-[500px] rounded-full bg-fuchsia-600/10 blur-[100px] animate-float" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(124,58,237,0.18),transparent_60%)]" />
+      </div>
+    );
+  }
+
   return (
     <div
       aria-hidden
@@ -20,9 +34,7 @@ export function MeshBackground({ variant = "light", className }: MeshBackgroundP
       <div
         className={cn(
           "absolute -left-1/4 top-0 h-[600px] w-[600px] rounded-full blur-[120px] animate-mesh-drift",
-          variant === "dashboard"
-            ? "bg-violet-400/20"
-            : "bg-violet-500/30"
+          variant === "dashboard" ? "bg-violet-400/20" : "bg-violet-500/30"
         )}
       />
       <div

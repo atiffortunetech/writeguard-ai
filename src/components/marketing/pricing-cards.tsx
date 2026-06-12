@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
 import { PLAN_DEFINITIONS } from "@/lib/stripe";
@@ -17,18 +16,10 @@ export function PricingCards({ compact = false }: { compact?: boolean }) {
     <div>
       <div className="mb-10 flex justify-center">
         <div className="marketing-pricing-toggle">
-          <button
-            type="button"
-            data-active={!yearly}
-            onClick={() => setYearly(false)}
-          >
+          <button type="button" data-active={!yearly} onClick={() => setYearly(false)}>
             Monthly
           </button>
-          <button
-            type="button"
-            data-active={yearly}
-            onClick={() => setYearly(true)}
-          >
+          <button type="button" data-active={yearly} onClick={() => setYearly(true)}>
             Yearly <span className="ml-1 text-xs opacity-80">Save 20%</span>
           </button>
         </div>
@@ -44,10 +35,12 @@ export function PricingCards({ compact = false }: { compact?: boolean }) {
             : `$${plan.priceMonthly}/month`;
 
           return (
-            <Card
+            <div
               key={tier}
-              className={`relative flex flex-col border-violet-100 ${
-                isPopular ? "border-violet-400 shadow-xl ring-2 ring-violet-200" : ""
+              className={`marketing-bento-card relative flex flex-col ${
+                isPopular
+                  ? "border-violet-500/40 bg-gradient-to-b from-violet-500/10 to-transparent shadow-[0_0_48px_rgba(124,58,237,0.15)]"
+                  : ""
               }`}
             >
               {isPopular && (
@@ -55,53 +48,49 @@ export function PricingCards({ compact = false }: { compact?: boolean }) {
                   Most popular
                 </Badge>
               )}
-              <CardHeader>
-                <p className="text-xs font-semibold uppercase tracking-wider text-violet-600">
+              <div className="mb-6">
+                <p className="text-xs font-semibold uppercase tracking-wider text-violet-400">
                   {tier === "FREE" ? "For individuals" : tier === "PRO" ? "For professionals" : "For teams"}
                 </p>
-                <CardTitle className="font-display text-2xl">{plan.name}</CardTitle>
-                <CardDescription>{plan.description}</CardDescription>
+                <h3 className="font-display mt-2 text-2xl font-bold text-white">{plan.name}</h3>
+                <p className="mt-1 text-sm text-white/45">{plan.description}</p>
                 <div className="pt-4">
-                  <span className="font-display text-4xl font-bold text-slate-900">${price}</span>
-                  <span className="text-slate-500"> USD / month</span>
+                  <span className="font-display text-4xl font-bold text-white">${price}</span>
+                  <span className="text-white/40"> USD / month</span>
                   {tier !== "FREE" && (
-                    <p className="mt-1 text-xs text-slate-500">{billedNote}</p>
+                    <p className="mt-1 text-xs text-white/35">{billedNote}</p>
                   )}
                 </div>
-              </CardHeader>
-              <CardContent className="flex-1">
-                <ul className="space-y-3">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-2 text-sm text-slate-600">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-violet-600" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-              <CardFooter>
-                {tier === "FREE" ? (
-                  <Button variant="outline" className="w-full" asChild>
-                    <Link href="/signup">Create account</Link>
-                  </Button>
-                ) : (
-                  <Button className={`w-full ${isPopular ? "btn-glow border-0 text-white" : ""}`} asChild>
-                    <Link href={`/signup?plan=${tier.toLowerCase()}`}>Get {plan.name}</Link>
-                  </Button>
-                )}
-              </CardFooter>
-            </Card>
+              </div>
+              <ul className="mb-8 flex-1 space-y-3">
+                {plan.features.map((feature) => (
+                  <li key={feature} className="flex items-start gap-2 text-sm text-white/55">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-violet-400" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              {tier === "FREE" ? (
+                <Button variant="outline" className="w-full border-white/20 bg-transparent text-white hover:bg-white/10" asChild>
+                  <Link href="/signup">Create account</Link>
+                </Button>
+              ) : (
+                <Button className={`w-full ${isPopular ? "btn-glow border-0 text-white" : "bg-violet-600 hover:bg-violet-700 text-white"}`} asChild>
+                  <Link href={`/signup?plan=${tier.toLowerCase()}`}>Get {plan.name}</Link>
+                </Button>
+              )}
+            </div>
           );
         })}
       </div>
 
       {!compact && (
-        <div className="mt-10 rounded-2xl border border-violet-100 bg-violet-50/50 p-8 text-center">
-          <h3 className="font-display mb-2 text-xl font-bold text-slate-900">Enterprise</h3>
-          <p className="mb-4 text-slate-600">
+        <div className="marketing-bento-card mt-10 p-8 text-center">
+          <h3 className="font-display mb-2 text-xl font-bold text-white">Enterprise</h3>
+          <p className="mb-4 text-white/50">
             Custom limits, priority support, and SSO for larger organizations.
           </p>
-          <Button variant="outline" asChild>
+          <Button variant="outline" className="border-white/20 bg-transparent text-white hover:bg-white/10" asChild>
             <Link href="mailto:sales@writeguard.ai">Contact sales</Link>
           </Button>
         </div>
