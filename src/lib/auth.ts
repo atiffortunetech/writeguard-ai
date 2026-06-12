@@ -8,6 +8,7 @@ import {
   findUserById,
   linkAccount,
 } from "@/lib/db";
+import { ensureOwnerIsAdmin, roleForNewUser } from "@/lib/owner";
 import { authConfig } from "@/lib/auth.config";
 import type { UserRole } from "@/types/database";
 
@@ -62,12 +63,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const isValid = await bcrypt.compare(password, user.passwordHash);
           if (!isValid) return null;
 
+          const dbUser = await ensureOwnerIsAdmin(user);
+
           return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            image: user.image,
-            role: user.role,
+            id: dbUser.id,
+            email: dbUser.email,
+            name: dbUser.name,
+            image: dbUser.image,
+            role: dbUser.role,
           };
         } catch (err) {
           console.error("Credentials auth database error:", err);
@@ -103,9 +106,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           name: user.name,
           image: user.image,
           emailVerified: new Date(),
-          role: "USER",
+          role: roleForNewUser(email),
         });
       }
+
+      dbUser = await ensureOwnerIsAdmin(dbUser);
 
       if (dbUser.banned) {
         return false;

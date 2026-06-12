@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { createSubscription, createUser, ensureFreePlan, findUserByEmail } from "@/lib/db";
+import { roleForNewUser } from "@/lib/owner";
 import { signUpSchema } from "@/lib/validations";
 
 export async function POST(req: NextRequest) {
@@ -31,6 +32,7 @@ export async function POST(req: NextRequest) {
       name,
       email,
       passwordHash,
+      role: roleForNewUser(email),
     });
 
     // Ensure free plan exists and assign default subscription
