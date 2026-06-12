@@ -6,6 +6,11 @@ import {
 
 const TIMEOUT_MS = 8_000;
 
+function isLocalHostInConfig(host: string): boolean {
+  const h = host.toLowerCase();
+  return h === "127.0.0.1" || h === "localhost" || h === "::1";
+}
+
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return Promise.race([
     promise,
@@ -50,7 +55,10 @@ export async function GET() {
     const message = err instanceof Error ? err.message : "Unknown database error";
 
     let hint: string | undefined;
-    if (config.hasStalePostgresUrl) {
+    if (config.isVercel && config.host && isLocalHostInConfig(config.host)) {
+      hint =
+        "On Vercel, DB_HOST must be Hostinger Remote MySQL hostname (srvXXXX.hstgr.io), NOT 127.0.0.1.";
+    } else if (config.hasStalePostgresUrl) {
       hint = "Delete the old PostgreSQL DATABASE_URL from Hostinger env vars.";
     } else if (config.hasConflictingUrls) {
       hint =

@@ -22,20 +22,51 @@ export function cleanEnv(value: string | undefined): string | undefined {
 }
 
 /** Node may resolve localhost to IPv6 ::1; MySQL users on Hostinger are often only allowed on 127.0.0.1 */
-function normalizeMysqlHost(host: string): string {
+function normalizeLocalHost(host: string): string {
   const h = host.trim().toLowerCase();
   if (h === "localhost") return "127.0.0.1";
   return host.trim();
 }
 
+function isLocalMysqlHost(host: string): boolean {
+  const h = host.trim().toLowerCase();
+  return h === "localhost" || h === "127.0.0.1" || h === "::1";
+}
+
+function isVercelRuntime(): boolean {
+  return Boolean(process.env.VERCEL);
+}
+
+/** Resolve host for same-server (Hostinger Node) vs remote (Vercel → Hostinger MySQL) */
+function resolveMysqlHost(host: string): string {
+  const resolved = normalizeLocalHost(host);
+
+  if (isVercelRuntime() && isLocalMysqlHost(resolved)) {
+    throw new Error(
+      "On Vercel, DB_HOST cannot be localhost or 127.0.0.1. Enable Remote MySQL in Hostinger hPanel and use the remote hostname (e.g. srvXXXX.hstgr.io)."
+    );
+  }
+
+  return resolved;
+}
+
+function mysqlSslOptions(host: string): PoolOptions["ssl"] | undefined {
+  if (isLocalMysqlHost(host)) return undefined;
+  if (cleanEnv(process.env.DB_SSL) === "false") return undefined;
+  // Remote Hostinger / Vercel: enable TLS (rejectUnauthorized false for shared hosting certs)
+  return { rejectUnauthorized: false };
+}
+
 function parseDatabaseUrl(url: string): PoolOptions {
   const parsed = new URL(url);
+  const host = resolveMysqlHost(parsed.hostname);
   return {
-    host: normalizeMysqlHost(parsed.hostname),
+    host,
     port: parsed.port ? Number(parsed.port) : 3306,
     user: decodeURIComponent(parsed.username),
     password: decodeURIComponent(parsed.password),
     database: parsed.pathname.replace(/^\//, ""),
+    ssl: mysqlSslOptions(host),
   };
 }
 
@@ -72,6 +103,8 @@ export function getDbConfigSummary() {
     database: config?.database ?? null,
     passwordSet: Boolean(config?.password && config.password.length > 0),
     passwordLength: config?.password?.length ?? 0,
+    isRemote: config?.host ? !isLocalMysqlHost(config.host) : false,
+    isVercel: isVercelRuntime(),
     hasStalePostgresUrl:
       cleanEnv(process.env.DATABASE_URL)?.startsWith("postgresql://") ?? false,
     hasConflictingUrls:
@@ -123,12 +156,15 @@ function getPoolConfig(): PoolOptions {
     );
   }
 
+  const resolvedHost = resolveMysqlHost(host);
+
   const options: PoolOptions = {
-    host: normalizeMysqlHost(host),
+    host: resolvedHost,
     port: port ? Number(port) : 3306,
     user,
     password,
     database,
+    ssl: mysqlSslOptions(resolvedHost),
   };
 
   const socketPath = cleanEnv(process.env.MYSQL_SOCKET);

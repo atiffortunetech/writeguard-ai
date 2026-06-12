@@ -79,8 +79,9 @@ export async function POST(req: NextRequest) {
     ) {
       return NextResponse.json(
         {
-          error:
-            "Cannot connect to MySQL. Check MYSQL_HOST (try 127.0.0.1), MYSQL_USER, and MYSQL_PASSWORD on Hostinger.",
+          error: process.env.VERCEL
+            ? "Cannot reach Hostinger MySQL from Vercel. Enable Remote MySQL in hPanel, allow host %, set DB_HOST to srvXXXX.hstgr.io (not 127.0.0.1)."
+            : "Cannot connect to MySQL. Set DB_HOST=127.0.0.1 on Hostinger, or remote hostname on Vercel.",
         },
         { status: 503 }
       );
