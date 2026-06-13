@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { findBrandImageByIdAndUserId } from "@/lib/db";
 import { requireApiAuth, apiError } from "@/lib/api-utils";
-import { readLocalBrandImage } from "@/lib/brand-image-storage";
+import { readBrandImage } from "@/lib/brand-image-storage";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -19,7 +19,10 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
     return Response.redirect(image.referenceImageUrl);
   }
 
-  const local = await readLocalBrandImage(auth.session.user.id, id, true);
+  const local = await readBrandImage(auth.session.user.id, id, {
+    reference: true,
+    storagePath: image.referenceStoragePath,
+  });
   if (!local) return apiError("Reference file not found", 404);
 
   return new Response(new Uint8Array(local.buffer), {

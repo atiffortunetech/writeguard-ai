@@ -30,6 +30,7 @@ export * from "./usage-logs";
 export * from "./activity-logs";
 export * from "./feedback";
 export * from "./brand-images";
+export * from "./brand-image-blobs";
 export * from "./plagiarism-checks";
 export * from "./ai-detection-checks";
 export * from "./suggestions";

@@ -12,6 +12,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS suggestions;
 DROP TABLE IF EXISTS document_versions;
 DROP TABLE IF EXISTS documents;
+DROP TABLE IF EXISTS brand_image_blobs;
 DROP TABLE IF EXISTS brand_images;
 DROP TABLE IF EXISTS plagiarism_checks;
 DROP TABLE IF EXISTS ai_detection_checks;
@@ -445,6 +446,16 @@ CREATE TABLE brand_images (
   KEY idx_brand_images_user_id (user_id),
   KEY idx_brand_images_created_at (created_at),
   CONSTRAINT fk_brand_images_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE brand_image_blobs (
+  brand_image_id VARCHAR(36)  NOT NULL,
+  kind             VARCHAR(10) NOT NULL,
+  mime_type        VARCHAR(100) NOT NULL,
+  data             LONGBLOB     NOT NULL,
+  PRIMARY KEY (brand_image_id, kind),
+  CONSTRAINT fk_brand_image_blobs_image
+    FOREIGN KEY (brand_image_id) REFERENCES brand_images (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
