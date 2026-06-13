@@ -15,7 +15,13 @@ interface BillingData {
   plan: { name: string; priceMonthly: number; aiCreditsMonthly: number };
   usage: { aiRequests: number; documents: number };
   creditsRemaining: number | null;
+  creditsLimit: number | null;
   subscription: { status: string; cancelAtPeriodEnd: boolean } | null;
+  access?: {
+    source: string;
+    creditLimitLabel: string;
+    toolsModeLabel: string;
+  };
 }
 
 interface PlanFeaturesData {
@@ -58,9 +64,17 @@ export default function BillingPage() {
     if (result.url) window.location.href = result.url;
   };
 
-  const creditPercent = data?.plan.aiCreditsMonthly && data.plan.aiCreditsMonthly > 0
-    ? Math.min(100, (data.usage.aiRequests / data.plan.aiCreditsMonthly) * 100)
-    : 0;
+  const creditCap = data?.creditsLimit ?? null;
+  const creditPercent =
+    creditCap && creditCap > 0
+      ? Math.min(100, (data!.usage.aiRequests / creditCap) * 100)
+      : 0;
+  const planLabel =
+    data?.access?.source === "override"
+      ? `Custom Access (${data.access.creditLimitLabel} credits)`
+      : data?.plan.name;
+  const tierBadge =
+    data?.access?.source === "override" ? "GRANTED" : data?.tier;
 
   return (
     <>
@@ -86,9 +100,14 @@ export default function BillingPage() {
                   <div className="mb-4 space-y-2">
                     <div className="flex justify-between text-sm">
                       <span>AI credits used</span>
-                      <span>{data.usage.aiRequests} / {data.plan.aiCreditsMonthly === -1 ? "∞" : data.plan.aiCreditsMonthly}</span>
+                      <span>
+                        {data.usage.aiRequests} /{" "}
+                        {creditCap === null ? "∞" : creditCap}
+                      </span>
                     </div>
-                    {data.plan.aiCreditsMonthly > 0 && <Progress value={creditPercent} />}
+                    {creditCap !== null && creditCap > 0 && (
+                      <Progress value={creditPercent} />
+                    )}
                   </div>
                   <Button variant="outline" onClick={openPortal} disabled={loading === "portal"}>
                     <ExternalLink className="h-4 w-4" /> Manage billing

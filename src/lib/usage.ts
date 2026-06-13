@@ -36,6 +36,39 @@ export async function getUserCreditPolicy(userId: string) {
   };
 }
 
+/** Credits shown in UI — respects admin overrides, not plan tier defaults. */
+export function formatCreditsDisplay(
+  monthlyCredits: number,
+  creditsRemaining: number | null
+): string | number {
+  if (monthlyCredits === -1) return "Unlimited";
+  return creditsRemaining ?? 0;
+}
+
+/** Plan label for dashboard/billing when access is admin-granted. */
+export function getPlanDisplayName(
+  source: Awaited<ReturnType<typeof getUserCreditPolicy>>["source"],
+  featureTier: PlanTier,
+  monthlyCredits: number
+): string {
+  if (source === "admin") return "Admin";
+  if (source === "override") {
+    return monthlyCredits === -1
+      ? "Custom Access"
+      : `Custom Access (${monthlyCredits} credits)`;
+  }
+  return PLAN_DEFINITIONS[featureTier].name;
+}
+
+export function getPlanDisplayBadge(
+  source: Awaited<ReturnType<typeof getUserCreditPolicy>>["source"],
+  featureTier: PlanTier
+): string {
+  if (source === "override") return "GRANTED";
+  if (source === "admin") return "ADMIN";
+  return featureTier;
+}
+
 export async function getUserUsageThisMonth(userId: string) {
   const startOfMonth = new Date();
   startOfMonth.setDate(1);

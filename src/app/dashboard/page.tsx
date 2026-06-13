@@ -1,8 +1,13 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { findDocuments } from "@/lib/db";
-import { getUserPlanTier, getUserUsageThisMonth } from "@/lib/usage";
-import { PLAN_DEFINITIONS } from "@/lib/stripe";
+import {
+  getUserCreditPolicy,
+  getUserUsageThisMonth,
+  formatCreditsDisplay,
+  getPlanDisplayName,
+  getPlanDisplayBadge,
+} from "@/lib/usage";
 import { DashboardHeader } from "@/components/dashboard/header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,17 +38,22 @@ export default async function DashboardPage() {
   const session = await auth();
   const userId = session!.user!.id;
 
-  const [documents, tier, usage] = await Promise.all([
+  const [documents, policy, usage] = await Promise.all([
     findDocuments(userId, { limit: 5, orderBy: "updated_at" }),
-    getUserPlanTier(userId),
+    getUserCreditPolicy(userId),
     getUserUsageThisMonth(userId),
   ]);
 
-  const plan = PLAN_DEFINITIONS[tier];
-  const creditsRemaining =
-    plan.aiCreditsMonthly === -1
-      ? "Unlimited"
-      : Math.max(0, plan.aiCreditsMonthly - usage.aiRequests);
+  const creditsRemaining = formatCreditsDisplay(
+    policy.monthlyCredits,
+    policy.creditsRemaining
+  );
+  const planName = getPlanDisplayName(
+    policy.source,
+    policy.featureTier,
+    policy.monthlyCredits
+  );
+  const planBadge = getPlanDisplayBadge(policy.source, policy.featureTier);
 
   return (
     <>
@@ -57,7 +67,7 @@ export default async function DashboardPage() {
             { label: "AI Credits Remaining", value: creditsRemaining, gradient: "from-violet-500 to-purple-600" },
             { label: "Documents", value: usage.documents, gradient: "from-cyan-500 to-blue-600" },
             { label: "AI Requests This Month", value: usage.aiRequests, gradient: "from-fuchsia-500 to-pink-600" },
-            { label: "Current Plan", value: plan.name, gradient: "from-orange-500 to-amber-600", badge: tier },
+            { label: "Current Plan", value: planName, gradient: "from-orange-500 to-amber-600", badge: planBadge },
           ].map((stat) => (
             <Card key={stat.label} className="glass-card group overflow-hidden border-0">
               <div className={`h-1 bg-gradient-to-r ${stat.gradient}`} />

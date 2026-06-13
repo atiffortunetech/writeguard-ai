@@ -1,7 +1,11 @@
 import { auth } from "@/lib/auth";
 import { countDocuments, listAIRequestLogsByUserId } from "@/lib/db";
-import { getUserUsageThisMonth, getUserPlanTier } from "@/lib/usage";
-import { PLAN_DEFINITIONS } from "@/lib/stripe";
+import {
+  getUserCreditPolicy,
+  getUserUsageThisMonth,
+  formatCreditsDisplay,
+  getPlanDisplayName,
+} from "@/lib/usage";
 import { DashboardHeader } from "@/components/dashboard/header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -10,17 +14,28 @@ export default async function WritingAnalyticsPage() {
   const session = await auth();
   const userId = session!.user!.id;
 
-  const [usage, tier, recentLogs, docCount] = await Promise.all([
+  const [usage, policy, recentLogs, docCount] = await Promise.all([
     getUserUsageThisMonth(userId),
-    getUserPlanTier(userId),
+    getUserCreditPolicy(userId),
     listAIRequestLogsByUserId(userId, { limit: 10 }),
     countDocuments(userId),
   ]);
 
-  const plan = PLAN_DEFINITIONS[tier];
-  const creditLimit = plan.aiCreditsMonthly === -1 ? null : plan.aiCreditsMonthly;
+  const creditLimit =
+    policy.monthlyCredits === -1 ? null : policy.monthlyCredits;
   const creditUsed = usage.aiRequests;
-  const creditPct = creditLimit ? Math.min(100, (creditUsed / creditLimit) * 100) : 0;
+  const creditPct = creditLimit
+    ? Math.min(100, (creditUsed / creditLimit) * 100)
+    : 0;
+  const planName = getPlanDisplayName(
+    policy.source,
+    policy.featureTier,
+    policy.monthlyCredits
+  );
+  const creditsLeft = formatCreditsDisplay(
+    policy.monthlyCredits,
+    policy.creditsRemaining
+  );
 
   return (
     <>
@@ -33,11 +48,8 @@ export default async function WritingAnalyticsPage() {
           {[
             { label: "Documents", value: docCount },
             { label: "AI Requests (month)", value: usage.aiRequests },
-            { label: "Plan", value: plan.name },
-            {
-              label: "Credits left",
-              value: creditLimit === null ? "Unlimited" : Math.max(0, creditLimit - creditUsed),
-            },
+            { label: "Plan", value: planName },
+            { label: "Credits left", value: creditsLeft },
           ].map((s) => (
             <Card key={s.label} className="glass-card border-0">
               <CardHeader className="pb-2">
