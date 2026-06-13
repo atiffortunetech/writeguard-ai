@@ -61,7 +61,7 @@ export function AuthShell({
             {subtitle && <p className="mt-2 text-sm text-white/50">{subtitle}</p>}
           </div>
         )}
-        <div className="w-full max-w-md">{children}</div>
+        <div className="w-full max-w-md text-slate-900">{children}</div>
       </div>
     </div>
   );
