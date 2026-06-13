@@ -6,6 +6,22 @@ export type WorkspaceRole = "OWNER" | "ADMIN" | "EDITOR" | "VIEWER";
 
 export type PlanTier = "FREE" | "PRO" | "BUSINESS" | "ENTERPRISE";
 
+/** Admin-controlled tool access mode */
+export type ToolsAccessMode = "locked" | "all" | "plan" | "tier";
+
+export interface UserAccess {
+  userId: string;
+  /** NULL = use subscription plan credits, -1 = unlimited, 0 = none, N = monthly cap */
+  creditLimit: number | null;
+  toolsMode: ToolsAccessMode;
+  featureTier: PlanTier | null;
+  adminNotes: string | null;
+  grantedById: string | null;
+  expiresAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export type SubscriptionStatus =
   | "ACTIVE"
   | "CANCELED"

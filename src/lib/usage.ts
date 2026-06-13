@@ -5,9 +5,9 @@ import {
   countDocuments,
   createAIRequestLog,
   createUsageLog,
-  findActiveSubscription,
   findUserById,
 } from "@/lib/db";
+import { getEffectiveAccess } from "@/lib/access-control";
 import { PLAN_DEFINITIONS } from "@/lib/stripe";
 
 /** App admins bypass all plan limits (unlimited AI, documents, team, etc.) */
@@ -17,13 +17,23 @@ export async function isAppAdmin(userId: string): Promise<boolean> {
 }
 
 export async function getUserPlanTier(userId: string): Promise<PlanTier> {
-  if (await isAppAdmin(userId)) {
-    return "ENTERPRISE";
-  }
+  const effective = await getEffectiveAccess(userId);
+  return effective.featureTier;
+}
 
-  const subscription = await findActiveSubscription(userId);
+export async function getUserCreditPolicy(userId: string) {
+  const effective = await getEffectiveAccess(userId);
+  const usage = await getUserUsageThisMonth(userId);
+  const limit = effective.monthlyCredits;
+  const remaining =
+    limit === -1 ? null : Math.max(0, limit - usage.aiRequests);
 
-  return subscription?.plan.tier ?? "FREE";
+  return {
+    ...effective,
+    usageThisMonth: usage.aiRequests,
+    creditsRemaining: remaining,
+    documentsUsed: usage.documents,
+  };
 }
 
 export async function getUserUsageThisMonth(userId: string) {
@@ -47,17 +57,29 @@ export async function checkUsageLimit(
     return { allowed: true };
   }
 
-  const tier = await getUserPlanTier(userId);
+  const effective = await getEffectiveAccess(userId);
+  const tier = effective.featureTier;
   const limits = PLAN_DEFINITIONS[tier];
   const usage = await getUserUsageThisMonth(userId);
 
   if (action === "ai_request") {
-    if (limits.aiCreditsMonthly === -1) return { allowed: true };
-    const remaining = limits.aiCreditsMonthly - usage.aiRequests;
+    const cap = effective.monthlyCredits;
+    if (cap === -1) return { allowed: true };
+    if (cap <= 0) {
+      return {
+        allowed: false,
+        reason:
+          effective.toolsMode === "locked"
+            ? "Your account is not activated yet. Visit Billing to upgrade or contact support."
+            : "AI credit limit reached. Upgrade your plan to continue.",
+        remaining: 0,
+      };
+    }
+    const remaining = cap - usage.aiRequests;
     if (remaining <= 0) {
       return {
         allowed: false,
-        reason: "AI credit limit reached for your plan. Upgrade to continue.",
+        reason: "AI credit limit reached. Upgrade your plan to continue.",
         remaining: 0,
       };
     }
@@ -65,6 +87,13 @@ export async function checkUsageLimit(
   }
 
   if (action === "document") {
+    if (effective.toolsMode === "locked" && effective.monthlyCredits <= 0) {
+      return {
+        allowed: false,
+        reason: "Your account is not activated yet. Visit Billing to upgrade or contact support.",
+        remaining: 0,
+      };
+    }
     if (limits.maxDocuments === -1) return { allowed: true };
     if (usage.documents >= limits.maxDocuments) {
       return {
@@ -127,7 +156,8 @@ export async function checkBrandImageGenerationAllowed(userId: string): Promise<
     return { allowed: true, creditCost };
   }
 
-  const tier = await getUserPlanTier(userId);
+  const effective = await getEffectiveAccess(userId);
+  const tier = effective.featureTier;
   const imageLimit = BRAND_IMAGE_MONTHLY_LIMIT[tier];
 
   if (imageLimit === 0) {
@@ -155,9 +185,10 @@ export async function checkBrandImageGenerationAllowed(userId: string): Promise<
 
   const limits = PLAN_DEFINITIONS[tier];
   const usage = await getUserUsageThisMonth(userId);
+  const cap = effective.monthlyCredits;
 
-  if (limits.aiCreditsMonthly !== -1) {
-    const remaining = limits.aiCreditsMonthly - usage.aiRequests;
+  if (cap !== -1) {
+    const remaining = cap - usage.aiRequests;
     if (remaining < creditCost) {
       return {
         allowed: false,

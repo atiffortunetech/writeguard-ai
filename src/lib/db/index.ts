@@ -33,3 +33,4 @@ export * from "./brand-images";
 export * from "./plagiarism-checks";
 export * from "./ai-detection-checks";
 export * from "./suggestions";
+export * from "./user-access";

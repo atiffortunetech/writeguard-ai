@@ -1,6 +1,7 @@
 import type { PlanTier } from "@/types/database";
 import { PLAN_DEFINITIONS } from "@/lib/stripe";
 import { getUserPlanTier, isAppAdmin } from "@/lib/usage";
+import { getEffectiveAccess } from "@/lib/access-control";
 import {
   FEATURE_MIN_TIER,
   tierAtLeast,
@@ -31,6 +32,22 @@ export async function checkFeatureAccess(
 
   if (await isAppAdmin(userId)) {
     return { allowed: true, requiredTier, currentTier: "ENTERPRISE" };
+  }
+
+  const effective = await getEffectiveAccess(userId);
+
+  if (effective.toolsMode === "locked") {
+    const requiredTier = FEATURE_MIN_TIER[featureId] ?? "PRO";
+    if (requiredTier === "FREE") {
+      return { allowed: true, requiredTier, currentTier: "FREE" };
+    }
+    return {
+      allowed: false,
+      requiredTier,
+      currentTier: "FREE",
+      reason:
+        "This feature is locked. Visit Billing to upgrade or contact your administrator.",
+    };
   }
 
   const currentTier = await getUserPlanTier(userId);

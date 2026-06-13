@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { createSubscription, createUser, ensureFreePlan, findUserByEmail } from "@/lib/db";
+import { createSubscription, createUser, createDefaultUserAccess, ensureFreePlan, findUserByEmail } from "@/lib/db";
 import { roleForNewUser } from "@/lib/owner";
 import { signUpSchema } from "@/lib/validations";
 
@@ -42,6 +42,15 @@ export async function POST(req: NextRequest) {
       userId: user.id,
       planId: freePlan.id,
       status: "ACTIVE",
+    });
+
+    await createDefaultUserAccess(user.id).catch((err) => {
+      console.error("createDefaultUserAccess failed:", err);
+      throw new Error(
+        err instanceof Error && err.message.includes("user_access")
+          ? "user_access table missing. Import mysql/user-access-migration.sql"
+          : "Failed to initialize account access"
+      );
     });
 
     return NextResponse.json(

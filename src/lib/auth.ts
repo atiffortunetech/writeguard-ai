@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import {
   createUser,
+  createDefaultUserAccess,
   findUserByAccount,
   findUserByEmail,
   findUserById,
@@ -108,6 +109,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           emailVerified: new Date(),
           role: roleForNewUser(email),
         });
+        await createDefaultUserAccess(dbUser.id);
       }
 
       dbUser = await ensureOwnerIsAdmin(dbUser);
