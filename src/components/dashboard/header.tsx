@@ -18,7 +18,7 @@ export function DashboardHeader({
   const shell = useDashboardShell();
 
   return (
-    <header className="header-3d relative shrink-0 border-b border-violet-100/60 glass-panel px-4 py-4 sm:px-6 lg:px-8 lg:py-5">
+    <header className="dashboard-header relative shrink-0 border-b border-violet-100/60 glass-panel px-4 py-4 sm:px-6 lg:px-8 lg:py-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div className="flex min-w-0 items-start gap-3">
           {shell && (
@@ -26,7 +26,7 @@ export function DashboardHeader({
               type="button"
               variant="outline"
               size="icon"
-              className="mt-0.5 shrink-0 border-violet-200/80 bg-white/80 lg:hidden"
+              className="dashboard-menu-btn mt-0.5 shrink-0 border-violet-200/80 bg-white lg:hidden"
               onClick={() => shell.openMenu()}
               aria-label="Open navigation menu"
               aria-expanded={shell.menuOpen}
@@ -34,9 +34,9 @@ export function DashboardHeader({
               <Menu className="h-5 w-5" />
             </Button>
           )}
-          <div className="min-w-0 animate-fade-up">
+          <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 shrink-0 text-violet-500 animate-pulse-glow" />
+              <Sparkles className="h-4 w-4 shrink-0 text-violet-500 lg:animate-pulse-glow" />
               <h1 className="font-display truncate text-xl font-bold tracking-tight gradient-text sm:text-2xl">
                 {title}
               </h1>
@@ -49,12 +49,9 @@ export function DashboardHeader({
           </div>
         </div>
 
-        <div
-          className="flex flex-wrap items-center gap-2 sm:justify-end animate-fade-up"
-          style={{ animationDelay: "100ms" }}
-        >
+        <div className="flex flex-wrap items-center gap-2 sm:justify-end">
           {isAdmin && (
-            <Badge className="border-violet-200 bg-violet-50 text-violet-700 animate-pulse-glow text-[10px] sm:text-xs">
+            <Badge className="border-violet-200 bg-violet-50 text-violet-700 text-[10px] sm:text-xs lg:animate-pulse-glow">
               ADMIN · Unlimited
             </Badge>
           )}

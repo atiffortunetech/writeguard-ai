@@ -71,7 +71,7 @@ export function AuthShell({
               {subtitle && <p className="mt-2 text-sm text-white/50">{subtitle}</p>}
             </AnimateIn>
           )}
-          <Panel3D className="w-full max-w-md text-slate-900" delay={100} intensity={14}>
+          <Panel3D className="w-full max-w-md text-slate-900" delay={100} intensity={14} tilt={false}>
             {children}
           </Panel3D>
         </div>

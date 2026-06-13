@@ -104,7 +104,7 @@ export function MarketingHeader() {
 
         <button
           type="button"
-          className="rounded-lg p-2 text-white/70 lg:hidden"
+          className="marketing-mobile-menu-btn rounded-lg p-2 text-white/70 lg:hidden"
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label="Toggle menu"
         >

@@ -530,8 +530,23 @@ body {
 
 .marketing-dark-header {
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.92);
   backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+@media (max-width: 1023px) {
+  .marketing-dark-header {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(0, 0, 0, 0.97);
+  }
+
+  .marketing-mobile-menu-btn {
+    transform: none !important;
+    animation: none !important;
+    -webkit-tap-highlight-color: transparent;
+  }
 }
 
 .marketing-nav-dropdown-dark {
@@ -1037,6 +1052,41 @@ body {
   animation: page-depth-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* Stable dashboard header — no blink on mobile from blur/pulse/3D */
+.dashboard-header {
+  z-index: 20;
+  transform: none !important;
+  animation: none !important;
+}
+
+@media (max-width: 1023px) {
+  .dashboard-header.glass-panel {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(255, 255, 255, 0.97);
+  }
+
+  .dashboard-menu-btn {
+    transform: none !important;
+    animation: none !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease !important;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .dashboard-menu-btn:hover,
+  .dashboard-menu-btn:active {
+    transform: none !important;
+    box-shadow: 0 1px 2px rgba(124, 58, 237, 0.08) !important;
+  }
+
+  .dashboard-header .gradient-text {
+    animation: none;
+    background: none;
+    -webkit-text-fill-color: #6d28d9;
+    color: #6d28d9;
+  }
+}
+
 .header-3d {
   transform-style: preserve-3d;
   box-shadow:
@@ -1082,6 +1132,7 @@ body {
   .scene-3d-beam,
   .float-3d-idle,
   .dashboard-page-3d,
+  .dashboard-content,
   .animate-float,
   .animate-mesh-drift,
   .animate-mesh-drift-reverse,
@@ -1220,6 +1271,7 @@ body {
   overflow-x: hidden;
   padding: 1rem;
   -webkit-overflow-scrolling: touch;
+  animation: page-depth-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @media (min-width: 640px) {

@@ -57,9 +57,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         </div>
 
         <div className="dashboard-main relative z-10 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-          <div className="dashboard-page-3d flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
             {children}
-          </div>
         </div>
       </div>
     </DashboardShellContext.Provider>
