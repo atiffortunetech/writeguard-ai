@@ -64,8 +64,11 @@ const DEFAULT_MODES: IntelligenceModeId[] = [
 ];
 
 function parseModeList(raw: string | undefined): IntelligenceModeId[] {
-  if (!raw || raw === "off" || raw === "false" || raw === "0" || raw === "none") {
+  if (raw === "off" || raw === "false" || raw === "0" || raw === "none") {
     return [];
+  }
+  if (!raw?.trim()) {
+    return DEFAULT_MODES;
   }
   const ids = raw
     .split(",")
