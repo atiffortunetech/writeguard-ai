@@ -152,7 +152,7 @@ export default function TeamPage() {
         title="Team Workspace"
         description="Collaborate with your team on shared writing resources"
       />
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="dashboard-content">
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="space-y-4">
             <Card>

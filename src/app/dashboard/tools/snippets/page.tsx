@@ -57,7 +57,7 @@ export default function SnippetsPage() {
         title="Snippets"
         description="Save and reuse text snippets across your writing"
       />
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="dashboard-content">
         <div className="grid gap-6 lg:grid-cols-2">
           <Card className="glass-card border-0">
             <CardHeader>

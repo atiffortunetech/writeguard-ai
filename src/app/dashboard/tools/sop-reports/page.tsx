@@ -99,7 +99,7 @@ export default function SopReportsPage() {
         title="SOP & Reports"
         description="Generate SOPs, business reports, and process guides from your topic or explanation"
       />
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="dashboard-content">
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="space-y-6">
             <Card className="glass-card border-0">

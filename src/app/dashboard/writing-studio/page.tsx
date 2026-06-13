@@ -73,7 +73,7 @@ export default function WritingStudioPage() {
         title="Writing Studio"
         description="One scan — grammar, clarity, readability, tone, and AI likelihood (beyond basic checkers)"
       />
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="dashboard-content">
         <div className="mb-6 flex flex-wrap gap-2">
           <Badge className="bg-violet-100 text-violet-800">Advanced vs Grammarly</Badge>
           <Badge variant="outline">Flesch readability</Badge>

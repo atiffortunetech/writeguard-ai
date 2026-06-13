@@ -8,7 +8,7 @@ export default function ToolsHubPage() {
         title="AI Writing Tools"
         description="Grammarly-style tools — availability depends on your plan"
       />
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="dashboard-content">
         <ToolsHubGrid />
       </div>
     </>

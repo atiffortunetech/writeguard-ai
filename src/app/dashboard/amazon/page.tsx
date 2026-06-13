@@ -67,7 +67,7 @@ export default function AmazonPage() {
   return (
     <>
       <DashboardHeader title="Amazon Listing Optimizer" description="Generate SEO-optimized Amazon product listings" />
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="dashboard-content">
         <div className="grid gap-8 lg:grid-cols-2">
           {/* Input panel */}
           <AnimateIn direction="right">

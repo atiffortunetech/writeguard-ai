@@ -11,7 +11,7 @@ export default function PlaceholderPage({
   return (
     <>
       <DashboardHeader title={title} description={description} />
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="dashboard-content">
         <Card>
           <CardContent className="py-12 text-center">
             <p className="text-sm text-slate-500">

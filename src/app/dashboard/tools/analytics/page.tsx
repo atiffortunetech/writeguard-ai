@@ -43,7 +43,7 @@ export default async function WritingAnalyticsPage() {
         title="Writing Analytics"
         description="Your usage, AI activity, and workspace stats"
       />
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="dashboard-content">
         <div className="mb-8 grid gap-5 md:grid-cols-4">
           {[
             { label: "Documents", value: docCount },

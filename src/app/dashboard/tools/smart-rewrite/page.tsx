@@ -49,7 +49,7 @@ export default function SmartRewritePage() {
         title="Smart Rewrite"
         description="8 rewrite modes — beyond basic paraphrase (QuillBot offers ~2 modes)"
       />
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="dashboard-content">
         <Badge className="mb-6 bg-violet-100 text-violet-800">Pro · 8 advanced modes</Badge>
 
         <div className="grid gap-6 lg:grid-cols-2">

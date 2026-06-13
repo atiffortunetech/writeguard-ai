@@ -18,6 +18,7 @@ import {
   ImageIcon,
   Brain,
   ClipboardList,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,11 @@ import {
 } from "@/lib/plan-tiers";
 import type { PlanTier } from "@/types/database";
 import { PLAN_DEFINITIONS } from "@/lib/stripe";
+import { useDashboardShell } from "@/components/dashboard/dashboard-shell-context";
+
+interface DashboardSidebarProps {
+  onNavigate?: () => void;
+}
 
 const coreLinks = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
@@ -51,8 +57,9 @@ const accountLinks = [
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
-export function DashboardSidebar() {
+export function DashboardSidebar({ onNavigate }: DashboardSidebarProps) {
   const pathname = usePathname();
+  const shell = useDashboardShell();
   const { data: session } = useSession();
   const isAdmin = session?.user?.role === "ADMIN";
   const [tier, setTier] = useState<PlanTier>("FREE");
@@ -81,18 +88,37 @@ export function DashboardSidebar() {
   const isActive = (href: string) =>
     pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
 
+  const closeNav = () => {
+    onNavigate?.();
+    shell?.closeMenu();
+  };
+
+  const navLinkProps = { onClick: () => closeNav() };
+
   return (
-    <aside className="relative flex h-full w-64 flex-col glass-panel-dark text-white">
+    <aside className="relative flex h-full w-full flex-col glass-panel-dark text-white lg:w-64">
       <div className="absolute left-0 top-0 h-full w-[2px] bg-gradient-to-b from-violet-500 via-cyan-400 to-fuchsia-500 opacity-80" />
 
-      <div className="relative flex h-16 items-center gap-3 border-b border-white/10 px-6">
-        <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-cyan-500 text-sm font-bold text-white shadow-lg">
-          W
+      <div className="relative flex h-14 shrink-0 items-center justify-between gap-3 border-b border-white/10 px-4 sm:h-16 sm:px-6">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-cyan-500 text-sm font-bold text-white shadow-lg">
+            W
+          </div>
+          <div className="min-w-0">
+            <p className="font-display truncate text-sm font-bold tracking-tight">WriteGuard AI</p>
+            <p className="truncate text-[11px] text-violet-300/70">Writing workspace</p>
+          </div>
         </div>
-        <div>
-          <p className="font-display text-sm font-bold tracking-tight">WriteGuard AI</p>
-          <p className="text-[11px] text-violet-300/70">Writing workspace</p>
-        </div>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="shrink-0 text-violet-200/80 hover:bg-white/10 hover:text-white lg:hidden"
+          onClick={() => shell?.closeMenu()}
+          aria-label="Close menu"
+        >
+          <X className="h-5 w-5" />
+        </Button>
       </div>
 
       <nav className="flex-1 overflow-y-auto p-3">
@@ -111,6 +137,7 @@ export function DashboardSidebar() {
               <Link
                 key={item.href}
                 href={href}
+                {...navLinkProps}
                 className={cn(
                   "float-3d-nav flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all",
                   active
@@ -161,6 +188,7 @@ export function DashboardSidebar() {
                       <Link
                         key={tool.slug}
                         href={href}
+                        {...navLinkProps}
                         className={cn(
                           "flex items-center gap-2.5 rounded-lg px-3 py-1.5 text-[13px] transition-all",
                           active
@@ -198,6 +226,7 @@ export function DashboardSidebar() {
               <Link
                 key={item.href}
                 href={href}
+                {...navLinkProps}
                 className={cn(
                   "flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-violet-200/70 hover:bg-white/5 hover:text-white",
                   isActive(item.href) && "nav-glow-active text-white",
@@ -215,6 +244,7 @@ export function DashboardSidebar() {
         {isAdmin && (
           <Link
             href="/admin"
+            {...navLinkProps}
             className={cn(
               "mt-2 flex items-center gap-3 rounded-xl px-3 py-2 text-sm",
               pathname.startsWith("/admin")

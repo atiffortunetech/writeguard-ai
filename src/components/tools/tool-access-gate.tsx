@@ -27,7 +27,7 @@ export async function ToolAccessGate({
         title={featureName}
         description={description ?? "Upgrade your plan to unlock this tool"}
       />
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="dashboard-content">
         <UpgradePrompt
           featureName={featureName}
           requiredTier={access.requiredTier}

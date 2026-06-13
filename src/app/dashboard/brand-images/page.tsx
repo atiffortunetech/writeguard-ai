@@ -291,7 +291,7 @@ export default function BrandImagesPage() {
         title="Brand Image Studio"
         description="Generate on-brand marketing images with OpenAI — edit prompt & colors, then regenerate"
       />
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="dashboard-content">
         {error && !loading && (
           <div className="mb-6 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
             <AlertTriangle className="h-5 w-5 shrink-0 text-red-600" />

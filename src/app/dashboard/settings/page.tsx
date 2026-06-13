@@ -61,7 +61,7 @@ export default function SettingsPage() {
   return (
     <>
       <DashboardHeader title="Settings" description="Manage your account and preferences" />
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="dashboard-content">
         {message && <div className="mb-4 rounded-lg bg-indigo-50 p-3 text-sm text-indigo-700">{message}</div>}
 
         <div className="mx-auto max-w-2xl space-y-6">

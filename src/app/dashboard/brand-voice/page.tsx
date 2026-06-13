@@ -90,7 +90,7 @@ export default function BrandVoicePage() {
         title="Brand Voice"
         description="Define how your brand should sound across all content"
       />
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="dashboard-content">
         <div className="mb-6 flex items-center justify-between">
           <p className="text-sm text-slate-600">
             Create brand voice profiles to score and align your writing.

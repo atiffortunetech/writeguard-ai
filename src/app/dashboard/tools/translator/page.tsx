@@ -150,7 +150,7 @@ export default function TranslatorPage() {
         title="Translator"
         description="Translate text between any languages — Urdu, English, Arabic, and 40+ more"
       />
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="dashboard-content">
         <div className="mb-6 flex flex-wrap gap-2">
           <Badge variant="secondary">40+ languages</Badge>
           <Badge variant="outline">Domain: legal, medical, marketing</Badge>

@@ -47,7 +47,7 @@ export default function DocumentsPage() {
   return (
     <>
       <DashboardHeader title="Documents" description="Browse and manage all your writing documents" />
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="dashboard-content">
         <div className="mb-6 flex items-center gap-4">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />

@@ -69,7 +69,7 @@ export default function AIDetectorPage() {
   return (
     <>
       <DashboardHeader title="AI Detector" description="Estimate AI-generated content probability" />
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="dashboard-content">
         <div className="mb-6 flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
           <Info className="mt-0.5 h-5 w-5 shrink-0 text-slate-500" />
           <p className="text-sm text-slate-600">{DISCLAIMER}</p>

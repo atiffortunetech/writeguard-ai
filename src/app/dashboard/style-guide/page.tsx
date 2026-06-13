@@ -64,7 +64,7 @@ export default function StyleGuidePage() {
   return (
     <>
       <DashboardHeader title="Style Guide" description="Define spelling, tone, and compliance rules for your writing" />
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="dashboard-content">
         <div className="mb-6 flex justify-between">
           <p className="text-sm text-slate-600">Style guides are applied during grammar checks and AI analysis.</p>
           <Button onClick={() => setShowForm(!showForm)}><Plus className="h-4 w-4" /> New Style Guide</Button>

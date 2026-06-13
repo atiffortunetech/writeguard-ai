@@ -102,7 +102,7 @@ export default function HumanizerPage() {
         title="AI Humanizer"
         description="Transform AI text into natural human writing — powered by your own OpenAI key"
       />
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="dashboard-content">
         <AnimateIn>
           <div className="mb-6 flex flex-wrap items-center gap-3 rounded-2xl border border-violet-200/60 bg-gradient-to-r from-violet-50/80 to-cyan-50/50 p-4">
             <Shield className="h-5 w-5 shrink-0 text-violet-600" />

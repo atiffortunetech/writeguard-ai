@@ -863,3 +863,29 @@ body {
   transform: translateY(-3px) translateZ(6px);
   box-shadow: 0 16px 40px rgba(124, 58, 237, 0.12);
 }
+
+/* ── Dashboard responsive layout ── */
+.dashboard-main {
+  min-width: 0;
+}
+
+.dashboard-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 640px) {
+  .dashboard-content {
+    padding: 1.25rem 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .dashboard-content {
+    padding: 2rem;
+  }
+}

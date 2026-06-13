@@ -46,7 +46,7 @@ export default function PlagiarismPage() {
   return (
     <>
       <DashboardHeader title="Plagiarism Check" description="Verify content originality" />
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="dashboard-content">
         {configured === false && (
           <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
             <AlertTriangle className="mt-0.5 h-5 w-5 text-amber-600" />

@@ -197,22 +197,22 @@ export function EditorWorkspace({
   };
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex items-center gap-4 border-b border-slate-200 bg-white px-6 py-4">
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="flex shrink-0 flex-col gap-3 border-b border-slate-200 bg-white px-4 py-3 sm:flex-row sm:items-center sm:gap-4 sm:px-6 sm:py-4">
         <Input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="max-w-md border-0 text-lg font-semibold shadow-none focus-visible:ring-0"
+          className="w-full min-w-0 border-0 text-base font-semibold shadow-none focus-visible:ring-0 sm:max-w-md sm:text-lg"
           placeholder="Document title"
         />
-        <div className="ml-auto flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
           {isSaving && (
             <Badge variant="secondary" className="gap-1">
               <Loader2 className="h-3 w-3 animate-spin" /> Saving
             </Badge>
           )}
           <select
-            className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+            className="min-w-0 max-w-full rounded-lg border border-slate-200 px-2 py-2 text-xs sm:px-3 sm:text-sm"
             value={selectedBrandVoiceId ?? ""}
             onChange={(e) => setSelectedBrandVoiceId(e.target.value || null)}
           >
@@ -222,7 +222,7 @@ export function EditorWorkspace({
             ))}
           </select>
           <select
-            className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+            className="min-w-0 max-w-full rounded-lg border border-slate-200 px-2 py-2 text-xs sm:px-3 sm:text-sm"
             value={selectedStyleGuideId ?? ""}
             onChange={(e) => setSelectedStyleGuideId(e.target.value || null)}
           >
@@ -240,7 +240,7 @@ export function EditorWorkspace({
             ) : (
               <Sparkles className="h-4 w-4" />
             )}
-            Check Grammar
+            <span className="sr-only sm:not-sr-only sm:inline">Check Grammar</span>
           </Button>
         </div>
       </div>
@@ -256,8 +256,8 @@ export function EditorWorkspace({
         </div>
       )}
 
-      <div className="flex flex-1 overflow-hidden">
-        <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
+        <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
           <DocumentEditor
             initialContent={initialContent}
             onUpdate={handleEditorUpdate}
@@ -295,7 +295,7 @@ export function EditorWorkspace({
           </div>
         </div>
 
-        <aside className="w-96 overflow-y-auto border-l border-slate-200 bg-slate-50 p-4">
+        <aside className="max-h-[42vh] w-full shrink-0 overflow-y-auto border-t border-slate-200 bg-slate-50 p-4 lg:max-h-none lg:w-80 lg:border-l lg:border-t-0 xl:w-96">
           <div className="space-y-6">
             <div>
               <h3 className="mb-3 font-semibold text-slate-900">Writing Scores</h3>

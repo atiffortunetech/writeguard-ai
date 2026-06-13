@@ -57,7 +57,7 @@ export function TextToolPage({ slug }: { slug: string }) {
   return (
     <>
       <DashboardHeader title={tool.title} description={tool.description} />
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="dashboard-content">
         <div className="grid gap-6 lg:grid-cols-2">
           <AnimateIn direction="right">
             <Card className="glass-card border-0">

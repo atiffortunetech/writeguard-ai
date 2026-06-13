@@ -79,7 +79,7 @@ export default function BillingPage() {
   return (
     <>
       <DashboardHeader title="Billing" description="Manage your subscription and usage" />
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="dashboard-content">
         {error && <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">{error}</div>}
 
         <div className="grid gap-6 md:grid-cols-2">

@@ -61,8 +61,8 @@ export default async function DashboardPage() {
         title="Dashboard"
         description="Your writing workspace overview"
       />
-      <div className="flex-1 overflow-y-auto p-8">
-        <div className="mb-8 grid gap-5 md:grid-cols-4">
+      <div className="dashboard-content">
+        <div className="mb-6 grid gap-4 sm:mb-8 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
           {[
             { label: "AI Credits Remaining", value: creditsRemaining, gradient: "from-violet-500 to-purple-600" },
             { label: "Documents", value: usage.documents, gradient: "from-cyan-500 to-blue-600" },
@@ -73,7 +73,7 @@ export default async function DashboardPage() {
               <div className={`h-1 bg-gradient-to-r ${stat.gradient}`} />
               <CardHeader className="pb-2">
                 <CardDescription>{stat.label}</CardDescription>
-                <CardTitle className="font-display flex items-center gap-2 text-2xl">
+                <CardTitle className="font-display flex flex-wrap items-center gap-2 text-xl sm:text-2xl">
                   {stat.value}
                   {"badge" in stat && stat.badge && (
                     <Badge variant="secondary">{stat.badge}</Badge>
@@ -109,7 +109,7 @@ export default async function DashboardPage() {
         </div>
 
         <Card className="glass-card border-0">
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <CardTitle>Recent Documents</CardTitle>
               <CardDescription>Pick up where you left off</CardDescription>
@@ -132,7 +132,7 @@ export default async function DashboardPage() {
                   <Link
                     key={doc.id}
                     href={`/dashboard/editor/${doc.id}`}
-                    className="flex items-center justify-between rounded-xl border border-violet-100/60 bg-white/60 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-violet-200 hover:bg-white hover:shadow-md"
+                    className="flex flex-col gap-2 rounded-xl border border-violet-100/60 bg-white/60 p-4 transition-all duration-300 hover:border-violet-200 hover:bg-white hover:shadow-md sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div>
                       <p className="font-medium text-slate-900">{doc.title}</p>
