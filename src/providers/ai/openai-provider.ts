@@ -1,3 +1,4 @@
+import { enhanceSystemPrompt } from "@/prompts/intelligence-layer";
 import OpenAI from "openai";
 import type {
   AnalysisResult,
@@ -141,7 +142,7 @@ export class OpenAIProvider implements AIProvider {
     const response = await this.client.chat.completions.create({
       model: options?.model ?? this.model,
       messages: [
-        { role: "system", content: system },
+        { role: "system", content: enhanceSystemPrompt(system) },
         { role: "user", content: user },
       ],
       temperature: options?.temperature ?? 0.3,

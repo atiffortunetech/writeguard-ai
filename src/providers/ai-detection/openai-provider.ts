@@ -1,3 +1,4 @@
+import { enhanceSystemPrompt } from "@/prompts/intelligence-layer";
 import OpenAI from "openai";
 import type { AIDetectionResult } from "@/types/ai";
 import { AI_DETECTION_DISCLAIMER } from "@/prompts/ai-detection";
@@ -99,7 +100,7 @@ export class OpenAIDetectionProvider implements AIDetectionProvider {
     const response = await this.client.chat.completions.create({
       model: this.model,
       messages: [
-        { role: "system", content: AI_DETECTION_SYSTEM },
+        { role: "system", content: enhanceSystemPrompt(AI_DETECTION_SYSTEM) },
         { role: "user", content: buildAIDetectionPrompt(input) },
       ],
       temperature: 0.2,

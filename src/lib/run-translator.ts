@@ -1,3 +1,4 @@
+import { enhanceSystemPrompt } from "@/prompts/intelligence-layer";
 import OpenAI from "openai";
 import {
   TRANSLATOR_SYSTEM,
@@ -51,7 +52,7 @@ export async function runTranslator(
   const response = await client.chat.completions.create({
     model: getTranslatorModel(),
     messages: [
-      { role: "system", content: TRANSLATOR_SYSTEM },
+      { role: "system", content: enhanceSystemPrompt(TRANSLATOR_SYSTEM) },
       {
         role: "user",
         content: buildTranslatorUserMessage(

@@ -1,3 +1,4 @@
+import { enhanceSystemPrompt } from "@/prompts/intelligence-layer";
 import OpenAI, { toFile } from "openai";
 import {
   BRAND_IMAGE_PROMPT_SYSTEM,
@@ -123,7 +124,9 @@ export async function buildBrandImagePrompt(
     messages: [
       {
         role: "system",
-        content: `${BRAND_IMAGE_PROMPT_SYSTEM}\n\nStyle direction: ${styleHint}`,
+        content: enhanceSystemPrompt(
+          `${BRAND_IMAGE_PROMPT_SYSTEM}\n\nStyle direction: ${styleHint}`
+        ),
       },
       { role: "user", content: userMessage },
     ],

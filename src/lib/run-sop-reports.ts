@@ -1,3 +1,4 @@
+import { enhanceSystemPrompt } from "@/prompts/intelligence-layer";
 import OpenAI from "openai";
 import {
   buildSopReportUserPrompt,
@@ -51,7 +52,7 @@ export async function runSopReportGenerator(
   const response = await client.chat.completions.create({
     model,
     messages: [
-      { role: "system", content: SOP_REPORT_SYSTEM },
+      { role: "system", content: enhanceSystemPrompt(SOP_REPORT_SYSTEM) },
       { role: "user", content: buildSopReportUserPrompt(input) },
     ],
     temperature: 0.45,

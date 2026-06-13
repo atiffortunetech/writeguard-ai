@@ -1,6 +1,7 @@
 import { getAIProvider } from "@/providers/ai";
 import { TOOL_PROMPTS, CHAT_SYSTEM, AGENT_PROMPTS, RESUME_SYSTEM } from "@/prompts/tools";
 import { GRAMMAR_ANALYSIS_SYSTEM, buildGrammarAnalysisPrompt } from "@/prompts/writing";
+import { enhanceSystemPrompt } from "@/prompts/intelligence-layer";
 import OpenAI from "openai";
 
 export interface ToolRunResult {
@@ -30,7 +31,7 @@ async function runToolChat(system: string, user: string): Promise<ToolRunResult>
   const response = await client.chat.completions.create({
     model,
     messages: [
-      { role: "system", content: system },
+      { role: "system", content: enhanceSystemPrompt(system) },
       { role: "user", content: user },
     ],
     temperature: 0.4,
@@ -102,7 +103,7 @@ export async function runChatMessage(
 
   const response = await client.chat.completions.create({
     model: process.env.OPENAI_MODEL || "gpt-4o-mini",
-    messages: [{ role: "system", content: system }, ...messages],
+    messages: [{ role: "system", content: enhanceSystemPrompt(system) }, ...messages],
     temperature: 0.7,
   });
 
@@ -131,7 +132,7 @@ export async function runResumeBuilder(input: Record<string, string>): Promise<{
   const response = await client.chat.completions.create({
     model: process.env.OPENAI_MODEL || "gpt-4o-mini",
     messages: [
-      { role: "system", content: RESUME_SYSTEM },
+      { role: "system", content: enhanceSystemPrompt(RESUME_SYSTEM) },
       { role: "user", content: user },
     ],
     temperature: 0.5,

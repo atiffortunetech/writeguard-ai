@@ -1,3 +1,4 @@
+import { enhanceSystemPrompt } from "@/prompts/intelligence-layer";
 import OpenAI from "openai";
 import { computeWritingMetrics, type WritingMetrics } from "@/lib/writing-metrics";
 
@@ -56,7 +57,7 @@ export async function runWritingIntelligence(
       process.env.OPENAI_MODEL ||
       "gpt-4o-mini",
     messages: [
-      { role: "system", content: INTELLIGENCE_SYSTEM },
+      { role: "system", content: enhanceSystemPrompt(INTELLIGENCE_SYSTEM) },
       {
         role: "user",
         content: `Analyze this writing. Local metrics: ${metrics.words} words, Flesch ${metrics.fleschReadingEase}, grade ${metrics.fleschKincaidGrade}.${audienceNote}\n\n"""\n${text.slice(0, 12000)}\n"""`,

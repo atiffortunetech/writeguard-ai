@@ -1,3 +1,4 @@
+import { enhanceSystemPrompt } from "@/prompts/intelligence-layer";
 import OpenAI from "openai";
 import {
   getSmartRewriteInstruction,
@@ -30,13 +31,13 @@ export async function runSmartRewrite(
     messages: [
       {
         role: "system",
-        content: `You are an elite writing editor. ${instruction}
+        content: enhanceSystemPrompt(`You are an elite writing editor. ${instruction}
 
 Return ONLY valid JSON:
 {
   "result": string (full rewritten text only),
   "summary": string (one sentence on what changed)
-}`,
+}`),
       },
       { role: "user", content: text },
     ],
