@@ -10,6 +10,7 @@ import { PARAPHRASE_MODE_IDS } from "@/lib/paraphrase-modes";
 
 const schema = z.object({
   text: z.string().min(1).max(50000),
+  html: z.string().max(200000).optional(),
   mode: z.enum(PARAPHRASE_MODE_IDS).default("standard"),
 });
 
@@ -36,7 +37,11 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const result = await runParaphrase(parsed.data.text, parsed.data.mode);
+    const result = await runParaphrase(
+      parsed.data.text,
+      parsed.data.mode,
+      parsed.data.html
+    );
 
     await logAIRequest({
       userId: auth.session.user.id,

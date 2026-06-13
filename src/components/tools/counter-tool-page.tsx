@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { DashboardHeader } from "@/components/dashboard/header";
-import { Textarea } from "@/components/ui/textarea";
+import { FormattedTextInput } from "@/components/tools/formatted-text-input";
+import { useFormattedContent } from "@/hooks/use-formatted-content";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { computeTextStats } from "@/lib/text-stats";
 import { getToolBySlug } from "@/lib/tools-registry";
@@ -15,8 +16,8 @@ export function CounterToolPage({
   focus: "words" | "characters" | "paragraphs" | "sentences";
 }) {
   const tool = getToolBySlug(slug);
-  const [text, setText] = useState("");
-  const stats = useMemo(() => computeTextStats(text), [text]);
+  const { plainText, onFormattedChange } = useFormattedContent();
+  const stats = useMemo(() => computeTextStats(plainText), [plainText]);
 
   if (!tool) return null;
 
@@ -56,13 +57,7 @@ export function CounterToolPage({
               <CardTitle className="font-display">Your text</CardTitle>
             </CardHeader>
             <CardContent>
-              <Textarea
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                rows={16}
-                placeholder="Type or paste text to count…"
-                className="min-h-[320px]"
-              />
+              <FormattedTextInput onChange={onFormattedChange} minHeight="320px" />
             </CardContent>
           </Card>
 

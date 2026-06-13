@@ -11,6 +11,7 @@ import { getToolBySlug } from "@/lib/tools-registry";
 const schema = z.object({
   tool: z.string().min(1),
   text: z.string().min(1).max(50000),
+  html: z.string().max(200000).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -43,7 +44,9 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const result = await runWritingTool(parsed.data.tool, parsed.data.text);
+    const result = await runWritingTool(parsed.data.tool, parsed.data.text, {
+      html: parsed.data.html,
+    });
 
     await logAIRequest({
       userId: auth.session.user.id,

@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { DashboardHeader } from "@/components/dashboard/header";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { FormattedTextInput } from "@/components/tools/formatted-text-input";
+import { useFormattedContent } from "@/hooks/use-formatted-content";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -24,7 +25,7 @@ interface DetectionResult {
 }
 
 export default function AIDetectorPage() {
-  const [text, setText] = useState("");
+  const { plainText, onFormattedChange, isEmpty } = useFormattedContent();
   const [loading, setLoading] = useState(false);
   const [configured, setConfigured] = useState<boolean | null>(null);
   const [result, setResult] = useState<DetectionResult | null>(null);
@@ -44,7 +45,7 @@ export default function AIDetectorPage() {
     const res = await fetch("/api/ai-detection", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({ text: plainText }),
     });
     const data = await res.json();
     setLoading(false);
@@ -100,19 +101,13 @@ export default function AIDetectorPage() {
               <CardTitle className="font-display">Paste content to analyze</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Textarea
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                rows={12}
-                placeholder="Paste at least a paragraph of text to analyze…"
-                className="min-h-[280px]"
-              />
+              <FormattedTextInput onChange={onFormattedChange} minHeight="280px" />
               {error && (
                 <p className="rounded-xl bg-red-50 px-4 py-2 text-sm text-red-600">{error}</p>
               )}
               <Button
                 onClick={detect}
-                disabled={loading || !text.trim() || text.trim().length < 20}
+                disabled={loading || isEmpty || plainText.trim().length < 20}
                 className="w-full"
               >
                 {loading ? (

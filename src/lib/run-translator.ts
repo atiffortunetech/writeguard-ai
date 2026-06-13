@@ -1,3 +1,9 @@
+import {
+  buildFormattedUserMessage,
+  FORMAT_PRESERVATION_INSTRUCTIONS,
+  hasRichFormatting,
+  resolveFormattedAIResult,
+} from "@/lib/formatted-text";
 import { enhanceSystemPrompt } from "@/prompts/intelligence-layer";
 import OpenAI from "openai";
 import {
@@ -8,6 +14,7 @@ import { getLanguageByCode, languageLabel } from "@/lib/languages";
 
 export interface TranslateResult {
   result: string;
+  resultHtml?: string;
   summary?: string;
   detectedSourceLanguage?: string;
 }
@@ -24,7 +31,7 @@ export async function runTranslator(
   text: string,
   sourceLanguageCode: string,
   targetLanguageCode: string,
-  options?: { formality?: string; domain?: string }
+  options?: { formality?: string; domain?: string; html?: string }
 ): Promise<TranslateResult> {
   if (!process.env.OPENAI_API_KEY) {
     throw new Error("OPENAI_API_KEY is not configured");
@@ -49,19 +56,42 @@ export async function runTranslator(
     baseURL: process.env.OPENAI_BASE_URL || undefined,
   });
 
+  const useHtml = Boolean(options?.html && hasRichFormatting(options.html));
+  const formatNote = useHtml ? `\n\n${FORMAT_PRESERVATION_INSTRUCTIONS}` : "";
+  const jsonSchema = useHtml
+    ? `Return ONLY valid JSON:
+{
+  "resultHtml": string (full translation as HTML with preserved h1-h6, p, strong, em, lists, links),
+  "result": string (plain text translation in the target language),
+  "summary": string (one short sentence),
+  "detectedSourceLanguage": string (language name if source was auto-detected, else omit)
+}`
+    : `Return ONLY valid JSON:
+{
+  "result": string (the full translation in the target language — output ONLY the translated text, no quotes or labels),
+  "detectedSourceLanguage": string (language name if source was auto-detected, else omit),
+  "summary": string (one short sentence: e.g. "Translated from Urdu to English")
+}`;
+
+  const userContent = useHtml
+    ? `${buildTranslatorUserMessage(
+        text,
+        sourceLang === "auto" ? "auto" : languageLabel(getLanguageByCode(sourceLanguageCode)!),
+        languageLabel(targetLang),
+        options
+      ).replace(`"""\n${text}\n"""`, "")}\n\n${buildFormattedUserMessage(text, options?.html)}`
+    : buildTranslatorUserMessage(
+        text,
+        sourceLang === "auto" ? "auto" : languageLabel(getLanguageByCode(sourceLanguageCode)!),
+        languageLabel(targetLang),
+        options
+      );
+
   const response = await client.chat.completions.create({
     model: getTranslatorModel(),
     messages: [
-      { role: "system", content: enhanceSystemPrompt(TRANSLATOR_SYSTEM) },
-      {
-        role: "user",
-        content: buildTranslatorUserMessage(
-          text,
-          sourceLang === "auto" ? "auto" : languageLabel(getLanguageByCode(sourceLanguageCode)!),
-          languageLabel(targetLang),
-          options
-        ),
-      },
+      { role: "system", content: enhanceSystemPrompt(`${TRANSLATOR_SYSTEM}${formatNote}\n\n${jsonSchema}`) },
+      { role: "user", content: userContent },
     ],
     temperature: 0.2,
     response_format: { type: "json_object" },
@@ -72,13 +102,21 @@ export async function runTranslator(
     throw new Error("Empty translation response");
   }
 
-  const parsed = JSON.parse(content.replace(/```json\n?|\n?```/g, "").trim()) as TranslateResult;
-  if (!parsed.result?.trim()) {
+  const parsed = JSON.parse(content.replace(/```json\n?|\n?```/g, "").trim()) as {
+    result?: string;
+    resultHtml?: string;
+    summary?: string;
+    detectedSourceLanguage?: string;
+  };
+
+  const resolved = resolveFormattedAIResult(parsed, options?.html);
+  if (!resolved.result && !resolved.resultHtml) {
     throw new Error("Translation failed — empty result");
   }
 
   return {
-    result: parsed.result.trim(),
+    result: resolved.result,
+    resultHtml: resolved.resultHtml,
     summary:
       parsed.summary ??
       `Translated to ${targetLang.name}${parsed.detectedSourceLanguage ? ` from ${parsed.detectedSourceLanguage}` : ""}`,

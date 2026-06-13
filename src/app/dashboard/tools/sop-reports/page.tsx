@@ -5,6 +5,8 @@ import { DashboardHeader } from "@/components/dashboard/header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { FormattedTextInput } from "@/components/tools/formatted-text-input";
+import { useFormattedContent } from "@/hooks/use-formatted-content";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -40,10 +42,10 @@ const DOC_TYPE_ICONS: Record<SopReportDocumentType, typeof FileText> = {
 };
 
 export default function SopReportsPage() {
+  const { plainText: topicText, onFormattedChange: onTopicChange } = useFormattedContent();
   const [form, setForm] = useState({
     documentType: "sop" as SopReportDocumentType,
     title: "",
-    topic: "",
     audience: "",
     department: "",
     tone: "professional" as SopReportTone,
@@ -65,7 +67,7 @@ export default function SopReportsPage() {
       body: JSON.stringify({
         documentType: form.documentType,
         title: form.title,
-        topic: form.topic,
+        topic: topicText,
         audience: form.audience || undefined,
         department: form.department || undefined,
         tone: form.tone,
@@ -158,12 +160,7 @@ export default function SopReportsPage() {
 
                 <div className="space-y-2">
                   <Label>Topic / explanation *</Label>
-                  <Textarea
-                    value={form.topic}
-                    onChange={(e) => setForm({ ...form, topic: e.target.value })}
-                    rows={6}
-                    placeholder="Describe the process, situation, or subject. Include steps, context, goals, or findings you want covered…"
-                  />
+                  <FormattedTextInput onChange={onTopicChange} minHeight="200px" />
                   <p className="text-xs text-slate-500">
                     The more detail you provide, the better the SOP or report.
                   </p>
@@ -239,7 +236,7 @@ export default function SopReportsPage() {
 
                 <Button
                   onClick={generate}
-                  disabled={loading || !form.title.trim() || form.topic.trim().length < 10}
+                  disabled={loading || !form.title.trim() || topicText.trim().length < 10}
                   className="w-full"
                 >
                   {loading ? (

@@ -99,6 +99,7 @@ export const amazonListingSchema = z.object({
 
 export const humanizeSchema = z.object({
   text: z.string().min(1).max(50000),
+  html: z.string().max(200000).optional(),
   mode: z.string().default("general"),
   intensity: z
     .enum(["quality", "balanced", "enhanced", "standard", "deep", "maximum"])

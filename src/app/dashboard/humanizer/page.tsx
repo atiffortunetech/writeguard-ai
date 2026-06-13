@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { DashboardHeader } from "@/components/dashboard/header";
 import { AnimateIn } from "@/components/ui/animate-in";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -25,12 +24,15 @@ import {
   HUMANIZE_INTENSITY_META,
   type HumanizeIntensity,
 } from "@/prompts/humanizer";
+import { FormattedTextInput } from "@/components/tools/formatted-text-input";
+import { FormattedTextOutput } from "@/components/tools/formatted-text-output";
+import { useFormattedContent } from "@/hooks/use-formatted-content";
 
 const SCENE_MODES = Object.entries(HUMANIZER_MODES);
 
 export default function HumanizerPage() {
   const router = useRouter();
-  const [text, setText] = useState("");
+  const { plainText, onFormattedChange, requestBody, isEmpty } = useFormattedContent();
   const [mode, setMode] = useState("amazon_seller");
   const [intensity, setIntensity] = useState<HumanizeIntensity>("enhanced");
   const [preserveFormat, setPreserveFormat] = useState(true);
@@ -39,16 +41,17 @@ export default function HumanizerPage() {
   const [copied, setCopied] = useState(false);
   const [result, setResult] = useState<{
     humanizedText: string;
+    humanizedHtml?: string;
     explanation: string;
     changesSummary: string[];
     humanScore?: number;
     passesUsed?: number;
   } | null>(null);
 
-  const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const wordCount = plainText.trim() ? plainText.trim().split(/\s+/).length : 0;
 
   const humanize = async (sourceText?: string) => {
-    const input = sourceText ?? text;
+    const input = sourceText ?? plainText;
     if (!input.trim()) return;
 
     setLoading(true);
@@ -58,7 +61,11 @@ export default function HumanizerPage() {
     const res = await fetch("/api/ai/humanize", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: input, mode, intensity, preserveFormat }),
+      body: JSON.stringify(
+        sourceText
+          ? { text: sourceText, mode, intensity, preserveFormat }
+          : requestBody({ mode, intensity, preserveFormat })
+      ),
     });
     const data = await res.json();
     setLoading(false);
@@ -81,7 +88,7 @@ export default function HumanizerPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title: "Humanized Content",
-        content: `<p>${result.humanizedText.replace(/\n/g, "</p><p>")}</p>`,
+        content: result.humanizedHtml ?? `<p>${result.humanizedText.replace(/\n/g, "</p><p>")}</p>`,
         plainText: result.humanizedText,
       }),
     });
@@ -189,13 +196,7 @@ export default function HumanizerPage() {
                   </div>
                 </div>
 
-                <Textarea
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  rows={16}
-                  placeholder="Paste your ChatGPT / AI-generated text here…"
-                  className="min-h-[320px] font-mono text-sm leading-relaxed"
-                />
+                <FormattedTextInput onChange={onFormattedChange} minHeight="320px" />
 
                 {error && (
                   <p className="rounded-xl bg-red-50 px-4 py-2 text-sm text-red-600">{error}</p>
@@ -203,7 +204,7 @@ export default function HumanizerPage() {
 
                 <Button
                   onClick={() => humanize()}
-                  disabled={loading || !text.trim()}
+                  disabled={loading || isEmpty}
                   className="h-12 w-full text-base"
                 >
                   {loading ? (
@@ -273,9 +274,10 @@ export default function HumanizerPage() {
                       </div>
                     )}
 
-                    <div className="max-h-[420px] overflow-y-auto whitespace-pre-wrap rounded-2xl border border-emerald-100 bg-white p-5 text-sm leading-relaxed text-slate-800">
-                      {result.humanizedText}
-                    </div>
+                    <FormattedTextOutput
+                      result={result.humanizedText}
+                      resultHtml={result.humanizedHtml}
+                    />
 
                     <p className="text-sm text-slate-600">{result.explanation}</p>
 

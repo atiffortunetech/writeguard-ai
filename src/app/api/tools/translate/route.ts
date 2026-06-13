@@ -12,6 +12,7 @@ const TARGET_CODES = TARGET_LANGUAGE_CODES as unknown as readonly [string, ...st
 
 const schema = z.object({
   text: z.string().min(1).max(50000),
+  html: z.string().max(200000).optional(),
   sourceLanguage: z.enum(SOURCE_LANGUAGE_CODES),
   targetLanguage: z.enum(TARGET_CODES),
   formality: z.enum(["neutral", "formal", "casual"]).default("neutral"),
@@ -59,6 +60,7 @@ export async function POST(req: NextRequest) {
       {
         formality: parsed.data.formality,
         domain: parsed.data.domain,
+        html: parsed.data.html,
       }
     );
 

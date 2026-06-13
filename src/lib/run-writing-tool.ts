@@ -2,24 +2,42 @@ import { getAIProvider } from "@/providers/ai";
 import { TOOL_PROMPTS, CHAT_SYSTEM, AGENT_PROMPTS, RESUME_SYSTEM } from "@/prompts/tools";
 import { GRAMMAR_ANALYSIS_SYSTEM, buildGrammarAnalysisPrompt } from "@/prompts/writing";
 import { enhanceSystemPrompt } from "@/prompts/intelligence-layer";
+import { runFormattedAI } from "@/lib/run-formatted-ai";
+import { hasRichFormatting } from "@/lib/formatted-text";
 import { runParaphrase } from "@/lib/run-paraphrase";
 import OpenAI from "openai";
 
 export interface ToolRunResult {
   result: string;
+  resultHtml?: string;
   summary?: string;
   items?: Array<{ label: string; detail: string; severity?: string }>;
   scores?: Record<string, number>;
   raw?: unknown;
+  format?: "html" | "plain";
 }
 
-function parseToolJSON(content: string): ToolRunResult {
-  const cleaned = content.replace(/```json\n?|\n?```/g, "").trim();
-  const parsed = JSON.parse(cleaned) as ToolRunResult;
-  return parsed;
-}
+async function runToolChat(
+  system: string,
+  userPrefix: string,
+  text: string,
+  html?: string
+): Promise<ToolRunResult> {
+  if (html && hasRichFormatting(html)) {
+    const out = await runFormattedAI({
+      systemPrompt: system,
+      text,
+      html,
+      temperature: 0.4,
+    });
+    return {
+      result: out.result,
+      resultHtml: out.resultHtml,
+      summary: out.summary,
+      format: out.format,
+    };
+  }
 
-async function runToolChat(system: string, user: string): Promise<ToolRunResult> {
   if (!process.env.OPENAI_API_KEY) {
     throw new Error("OPENAI_API_KEY is not configured");
   }
@@ -33,7 +51,7 @@ async function runToolChat(system: string, user: string): Promise<ToolRunResult>
     model,
     messages: [
       { role: "system", content: enhanceSystemPrompt(system) },
-      { role: "user", content: user },
+      { role: "user", content: `${userPrefix}\n\n"""${text}"""` },
     ],
     temperature: 0.4,
     response_format: { type: "json_object" },
@@ -41,13 +59,14 @@ async function runToolChat(system: string, user: string): Promise<ToolRunResult>
 
   const content = response.choices[0]?.message?.content;
   if (!content) throw new Error("Empty AI response");
-  return parseToolJSON(content);
+  const cleaned = content.replace(/```json\n?|\n?```/g, "").trim();
+  return JSON.parse(cleaned) as ToolRunResult;
 }
 
 export async function runWritingTool(
   toolSlug: string,
   text: string,
-  options?: Record<string, string>
+  options?: { html?: string }
 ): Promise<ToolRunResult> {
   if (toolSlug === "grammar-checker") {
     const provider = getAIProvider();
@@ -72,10 +91,12 @@ export async function runWritingTool(
   }
 
   if (toolSlug === "paraphrase") {
-    const paraphrased = await runParaphrase(text, "standard");
+    const paraphrased = await runParaphrase(text, "standard", options?.html);
     return {
       result: paraphrased.result,
+      resultHtml: paraphrased.resultHtml,
       summary: paraphrased.summary,
+      format: paraphrased.format,
     };
   }
 
@@ -84,7 +105,12 @@ export async function runWritingTool(
     throw new Error(`Unknown tool: ${toolSlug}`);
   }
 
-  return runToolChat(prompt.system, `${prompt.userPrefix}\n\n"""${text}"""`);
+  return runToolChat(
+    prompt.system,
+    prompt.userPrefix,
+    text,
+    options?.html
+  );
 }
 
 export async function runChatMessage(

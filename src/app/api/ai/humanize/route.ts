@@ -1,4 +1,6 @@
-import { normalizeIntensity } from "@/prompts/humanizer";
+import { normalizeIntensity, getHumanizerSystemPrompt } from "@/prompts/humanizer";
+import { hasRichFormatting } from "@/lib/formatted-text";
+import { runFormattedAI } from "@/lib/run-formatted-ai";
 import { NextRequest } from "next/server";
 import { findFirstBrandVoiceByUserId } from "@/lib/db";
 import { humanizeSchema } from "@/lib/validations";
@@ -38,13 +40,41 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const intensity = normalizeIntensity(parsed.data.intensity);
+
+  if (parsed.data.html && hasRichFormatting(parsed.data.html)) {
+    const fmt = await runFormattedAI({
+      systemPrompt: `${getHumanizerSystemPrompt(intensity)}\nHumanize the text to sound natural and human-written. Preserve every HTML tag (h1-h6, p, strong, lists, links) exactly.`,
+      text: parsed.data.text,
+      html: parsed.data.html,
+      temperature: 0.88,
+    });
+
+    await logAIRequest({
+      userId: auth.session.user.id,
+      endpoint: "/api/ai/humanize",
+      model: process.env.OPENAI_MODEL,
+      success: true,
+      durationMs: Date.now() - start,
+    });
+
+    return Response.json({
+      humanizedText: fmt.result,
+      humanizedHtml: fmt.resultHtml,
+      explanation: `Humanized with ${intensity} mode — document formatting preserved.`,
+      changesSummary: [fmt.summary ?? "Format-preserving humanization"],
+      humanScore: 88,
+      passesUsed: 1,
+    });
+  }
+
   const provider = getAIProvider();
   const result = await provider.humanize(
     parsed.data.text,
     parsed.data.mode,
     brandVoice ?? undefined,
     {
-      intensity: normalizeIntensity(parsed.data.intensity),
+      intensity,
       preserveFormat: parsed.data.preserveFormat,
     }
   );

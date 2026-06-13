@@ -4,7 +4,9 @@ import { useMemo, useState } from "react";
 import { DashboardHeader } from "@/components/dashboard/header";
 import { AnimateIn } from "@/components/ui/animate-in";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { FormattedTextInput } from "@/components/tools/formatted-text-input";
+import { FormattedTextOutput } from "@/components/tools/formatted-text-output";
+import { useFormattedContent } from "@/hooks/use-formatted-content";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +27,7 @@ import {
 
 interface TranslateOutput {
   result: string;
+  resultHtml?: string;
   summary?: string;
   detectedSourceLanguage?: string;
 }
@@ -72,17 +75,17 @@ function LanguageSelect({
 }
 
 export default function TranslatorPage() {
+  const { plainText, onFormattedChange, requestBody, isEmpty, hasFormatting } = useFormattedContent();
   const [sourceLanguage, setSourceLanguage] = useState("auto");
   const [targetLanguage, setTargetLanguage] = useState("en");
   const [formality, setFormality] = useState<"neutral" | "formal" | "casual">("neutral");
   const [domain, setDomain] = useState("general");
-  const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [output, setOutput] = useState<TranslateOutput | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const charCount = text.length;
+  const charCount = plainText.length;
   const targetLang = getLanguageByCode(targetLanguage);
 
   const swapLanguages = () => {
@@ -103,7 +106,6 @@ export default function TranslatorPage() {
       setTargetLanguage(prevSource);
     }
     if (output?.result) {
-      setText(output.result);
       setOutput(null);
     }
   };
@@ -121,7 +123,9 @@ export default function TranslatorPage() {
     const res = await fetch("/api/tools/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, sourceLanguage, targetLanguage, formality, domain }),
+      body: JSON.stringify(
+        requestBody({ sourceLanguage, targetLanguage, formality, domain })
+      ),
     });
     const data = await res.json();
     setLoading(false);
@@ -133,10 +137,25 @@ export default function TranslatorPage() {
   };
 
   const copy = async () => {
-    if (!output?.result) return;
-    await navigator.clipboard.writeText(output.result);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (!output?.result && !output?.resultHtml) return;
+    try {
+      if (output.resultHtml && typeof ClipboardItem !== "undefined") {
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            "text/html": new Blob([output.resultHtml], { type: "text/html" }),
+            "text/plain": new Blob([output.result], { type: "text/plain" }),
+          }),
+        ]);
+      } else {
+        await navigator.clipboard.writeText(output.result);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      await navigator.clipboard.writeText(output.result);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   const sourceLabel = useMemo(() => {
@@ -268,16 +287,16 @@ export default function TranslatorPage() {
                   </div>
                 </div>
 
-                <Textarea
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  rows={14}
+                <FormattedTextInput
+                  onChange={onFormattedChange}
                   placeholder={`Type or paste text in ${sourceLabel}…`}
-                  className="min-h-[280px] text-base leading-relaxed"
-                  dir={
-                    ["ur", "ar", "fa", "he"].includes(sourceLanguage) ? "rtl" : "ltr"
-                  }
+                  minHeight="280px"
                 />
+                {hasFormatting && (
+                  <p className="text-xs text-violet-600">
+                    Formatted content detected — headings & bold will be preserved in translation.
+                  </p>
+                )}
                 <p className="text-xs text-slate-500">{charCount.toLocaleString()} characters</p>
 
                 {error && (
@@ -286,7 +305,7 @@ export default function TranslatorPage() {
 
                 <Button
                   onClick={translate}
-                  disabled={loading || !text.trim()}
+                  disabled={loading || isEmpty}
                   className="btn-glow h-11 w-full border-0 text-white"
                 >
                   {loading ? (
@@ -307,12 +326,12 @@ export default function TranslatorPage() {
               <div className="h-1 bg-gradient-to-r from-emerald-400 to-cyan-400" />
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="font-display">Translation</CardTitle>
-                {output?.result && (
+                {output?.result ? (
                   <Button size="sm" variant="outline" onClick={copy}>
                     {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                     {copied ? "Copied" : "Copy"}
                   </Button>
-                )}
+                ) : null}
               </CardHeader>
               <CardContent>
                 {!output ? (
@@ -329,14 +348,13 @@ export default function TranslatorPage() {
                         Detected: {output.detectedSourceLanguage}
                       </Badge>
                     )}
-                    <div
-                      className="whitespace-pre-wrap rounded-xl bg-emerald-50/80 p-4 text-base leading-relaxed"
-                      dir={
-                        ["ur", "ar", "fa", "he"].includes(targetLanguage) ? "rtl" : "ltr"
+                    <FormattedTextOutput
+                      result={output.result}
+                      resultHtml={output.resultHtml}
+                      className={
+                        ["ur", "ar", "fa", "he"].includes(targetLanguage) ? "rtl" : undefined
                       }
-                    >
-                      {output.result}
-                    </div>
+                    />
                   </div>
                 )}
               </CardContent>

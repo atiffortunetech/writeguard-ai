@@ -5,20 +5,25 @@ import { DashboardHeader } from "@/components/dashboard/header";
 import { AnimateIn } from "@/components/ui/animate-in";
 import { Float3D } from "@/components/ui/float-3d";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Copy, Check, RefreshCw } from "lucide-react";
+import { Loader2, RefreshCw } from "lucide-react";
 import { PARAPHRASE_MODES } from "@/lib/paraphrase-modes";
 import type { ParaphraseModeId } from "@/lib/paraphrase-modes";
+import { FormattedTextInput } from "@/components/tools/formatted-text-input";
+import { FormattedTextOutput } from "@/components/tools/formatted-text-output";
+import { useFormattedContent } from "@/hooks/use-formatted-content";
 
 export default function ParaphrasePage() {
-  const [text, setText] = useState("");
+  const { onFormattedChange, requestBody, isEmpty, hasFormatting } = useFormattedContent();
   const [mode, setMode] = useState<ParaphraseModeId>("standard");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [output, setOutput] = useState<{ result: string; summary: string } | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [output, setOutput] = useState<{
+    result: string;
+    resultHtml?: string;
+    summary: string;
+  } | null>(null);
 
   const run = async () => {
     setLoading(true);
@@ -26,7 +31,7 @@ export default function ParaphrasePage() {
     const res = await fetch("/api/tools/paraphrase", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, mode }),
+      body: JSON.stringify(requestBody({ mode })),
     });
     const data = await res.json();
     setLoading(false);
@@ -35,13 +40,6 @@ export default function ParaphrasePage() {
       return;
     }
     setOutput(data);
-  };
-
-  const copy = async () => {
-    if (!output?.result) return;
-    await navigator.clipboard.writeText(output.result);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
   };
 
   const activeMode = PARAPHRASE_MODES.find((m) => m.id === mode);
@@ -56,7 +54,7 @@ export default function ParaphrasePage() {
         <div className="mb-6 flex flex-wrap gap-2">
           <Badge className="bg-violet-100 text-violet-800">Pro · 6 paraphrase modes</Badge>
           <Badge variant="outline">Preserves meaning</Badge>
-          <Badge variant="outline">Anti-plagiarism friendly</Badge>
+          <Badge variant="outline">Preserves headings & bold</Badge>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
@@ -90,19 +88,18 @@ export default function ParaphrasePage() {
                       </button>
                     ))}
                   </div>
-                  <Textarea
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
-                    rows={12}
-                    placeholder="Paste sentences, paragraphs, or an essay to paraphrase…"
-                    className="min-h-[200px] sm:min-h-[260px]"
-                  />
+                  <FormattedTextInput onChange={onFormattedChange} />
+                  {hasFormatting && (
+                    <p className="text-xs text-violet-600">
+                      H1–H6, bold & paragraphs will be kept in the paraphrased output.
+                    </p>
+                  )}
                   {error && (
                     <p className="rounded-xl bg-red-50 px-4 py-2 text-sm text-red-600">{error}</p>
                   )}
                   <Button
                     onClick={run}
-                    disabled={loading || !text.trim()}
+                    disabled={loading || isEmpty}
                     className="btn-glow w-full border-0 text-white"
                   >
                     {loading ? (
@@ -120,25 +117,19 @@ export default function ParaphrasePage() {
             <Float3D>
               <Card className="glass-card border-0">
                 <div className="h-1 bg-gradient-to-r from-emerald-400 to-cyan-400" />
-                <CardHeader className="flex flex-row items-center justify-between gap-2">
+                <CardHeader>
                   <CardTitle className="font-display text-base sm:text-lg">Paraphrased output</CardTitle>
-                  {output?.result && (
-                    <Button size="sm" variant="outline" onClick={copy} aria-label="Copy result">
-                      {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                    </Button>
-                  )}
                 </CardHeader>
                 <CardContent>
                   {!output ? (
-                    <p className="py-12 text-center text-sm text-slate-500 sm:py-16">
-                      Your paraphrased text will appear here
-                    </p>
+                    <FormattedTextOutput emptyMessage="Your paraphrased text will appear here" />
                   ) : (
                     <div className="space-y-3">
                       <p className="text-sm text-slate-600">{output.summary}</p>
-                      <div className="whitespace-pre-wrap rounded-xl bg-emerald-50/80 p-4 text-sm leading-relaxed text-slate-800">
-                        {output.result}
-                      </div>
+                      <FormattedTextOutput
+                        result={output.result}
+                        resultHtml={output.resultHtml}
+                      />
                     </div>
                   )}
                 </CardContent>

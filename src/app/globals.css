@@ -864,6 +864,65 @@ body {
   box-shadow: 0 16px 40px rgba(124, 58, 237, 0.12);
 }
 
+/* ── Formatted tool editor (H1–H6, bold, paste from Docs) ── */
+.formatted-tool-prose h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0.75em 0 0.35em;
+}
+
+.formatted-tool-prose h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0.75em 0 0.35em;
+}
+
+.formatted-tool-prose h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0.65em 0 0.3em;
+}
+
+.formatted-tool-prose h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0.55em 0 0.25em;
+}
+
+.formatted-tool-prose h5 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0.5em 0 0.2em;
+}
+
+.formatted-tool-prose h6 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0.5em 0 0.2em;
+}
+
+.formatted-tool-prose p {
+  margin: 0.5em 0;
+}
+
+.formatted-tool-prose strong,
+.formatted-tool-prose b {
+  font-weight: 700;
+}
+
+.formatted-tool-prose a {
+  color: #7c3aed;
+  text-decoration: underline;
+}
+
+.formatted-tool-editor .ProseMirror-focused {
+  outline: none;
+}
+
 /* ── Dashboard responsive layout ── */
 .dashboard-main {
   min-width: 0;

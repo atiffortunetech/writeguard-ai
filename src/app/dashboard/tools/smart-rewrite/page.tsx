@@ -4,20 +4,25 @@ import { useState } from "react";
 import { DashboardHeader } from "@/components/dashboard/header";
 import { AnimateIn } from "@/components/ui/animate-in";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Copy, Check, RefreshCw } from "lucide-react";
+import { Loader2, RefreshCw } from "lucide-react";
 import { SMART_REWRITE_MODES } from "@/lib/smart-rewrite-modes";
 import type { SmartRewriteModeId } from "@/lib/smart-rewrite-modes";
+import { FormattedTextInput } from "@/components/tools/formatted-text-input";
+import { FormattedTextOutput } from "@/components/tools/formatted-text-output";
+import { useFormattedContent } from "@/hooks/use-formatted-content";
 
 export default function SmartRewritePage() {
-  const [text, setText] = useState("");
+  const { onFormattedChange, requestBody, isEmpty, hasFormatting } = useFormattedContent();
   const [mode, setMode] = useState<SmartRewriteModeId>("professional");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [output, setOutput] = useState<{ result: string; summary: string } | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [output, setOutput] = useState<{
+    result: string;
+    resultHtml?: string;
+    summary: string;
+  } | null>(null);
 
   const run = async () => {
     setLoading(true);
@@ -25,7 +30,7 @@ export default function SmartRewritePage() {
     const res = await fetch("/api/tools/smart-rewrite", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, mode }),
+      body: JSON.stringify(requestBody({ mode })),
     });
     const data = await res.json();
     setLoading(false);
@@ -36,18 +41,11 @@ export default function SmartRewritePage() {
     setOutput(data);
   };
 
-  const copy = async () => {
-    if (!output?.result) return;
-    await navigator.clipboard.writeText(output.result);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   return (
     <>
       <DashboardHeader
         title="Smart Rewrite"
-        description="8 rewrite modes — beyond basic paraphrase (QuillBot offers ~2 modes)"
+        description="8 rewrite modes — preserves headings, bold & structure from Google Docs"
       />
       <div className="dashboard-content">
         <Badge className="mb-6 bg-violet-100 text-violet-800">Pro · 8 advanced modes</Badge>
@@ -80,19 +78,16 @@ export default function SmartRewritePage() {
                     </button>
                   ))}
                 </div>
-                <Textarea
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  rows={12}
-                  placeholder="Paste text to rewrite…"
-                  className="min-h-[240px]"
-                />
+                <FormattedTextInput onChange={onFormattedChange} />
+                {hasFormatting && (
+                  <p className="text-xs text-violet-600">Document formatting will be preserved.</p>
+                )}
                 {error && (
                   <p className="rounded-xl bg-red-50 px-4 py-2 text-sm text-red-600">{error}</p>
                 )}
                 <Button
                   onClick={run}
-                  disabled={loading || !text.trim()}
+                  disabled={loading || isEmpty}
                   className="btn-glow w-full border-0 text-white"
                 >
                   {loading ? (
@@ -108,23 +103,19 @@ export default function SmartRewritePage() {
           <AnimateIn direction="left" delay={100}>
             <Card className="glass-card border-0">
               <div className="h-1 bg-gradient-to-r from-emerald-400 to-cyan-400" />
-              <CardHeader className="flex flex-row justify-between">
+              <CardHeader>
                 <CardTitle className="font-display">Output</CardTitle>
-                {output?.result && (
-                  <Button size="sm" variant="outline" onClick={copy}>
-                    {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                  </Button>
-                )}
               </CardHeader>
               <CardContent>
                 {!output ? (
-                  <p className="py-16 text-center text-sm text-slate-500">Rewritten text appears here</p>
+                  <FormattedTextOutput emptyMessage="Rewritten text appears here" />
                 ) : (
                   <div className="space-y-3">
                     <p className="text-sm text-slate-600">{output.summary}</p>
-                    <div className="whitespace-pre-wrap rounded-xl bg-emerald-50/80 p-4 text-sm leading-relaxed">
-                      {output.result}
-                    </div>
+                    <FormattedTextOutput
+                      result={output.result}
+                      resultHtml={output.resultHtml}
+                    />
                   </div>
                 )}
               </CardContent>

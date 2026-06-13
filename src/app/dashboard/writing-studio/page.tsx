@@ -6,7 +6,8 @@ import { DashboardHeader } from "@/components/dashboard/header";
 import { AnimateIn } from "@/components/ui/animate-in";
 import { Float3D } from "@/components/ui/float-3d";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { FormattedTextInput } from "@/components/tools/formatted-text-input";
+import { useFormattedContent } from "@/hooks/use-formatted-content";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -44,7 +45,7 @@ const AUDIENCE_PRESETS = [
 ];
 
 export default function WritingStudioPage() {
-  const [text, setText] = useState("");
+  const { plainText, onFormattedChange } = useFormattedContent();
   const [audience, setAudience] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,7 +57,7 @@ export default function WritingStudioPage() {
     const res = await fetch("/api/writing/intelligence", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, audience: audience || undefined }),
+      body: JSON.stringify({ text: plainText, audience: audience || undefined }),
     });
     const data = await res.json();
     setLoading(false);
@@ -114,19 +115,13 @@ export default function WritingStudioPage() {
                       ))}
                     </div>
                   </div>
-                  <Textarea
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
-                    rows={16}
-                    placeholder="Paste an essay, email, blog post, or product description for a full intelligence report…"
-                    className="min-h-[320px]"
-                  />
+                  <FormattedTextInput onChange={onFormattedChange} minHeight="320px" />
                   {error && (
                     <p className="rounded-xl bg-red-50 px-4 py-2 text-sm text-red-600">{error}</p>
                   )}
                   <Button
                     onClick={analyze}
-                    disabled={loading || text.trim().length < 10}
+                    disabled={loading || plainText.trim().length < 10}
                     className="btn-glow h-11 w-full border-0 text-white"
                   >
                     {loading ? (
