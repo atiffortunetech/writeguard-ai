@@ -111,6 +111,8 @@ export interface PlagiarismResult {
     text: string;
   }>;
   provider: string;
+  summary?: string;
+  disclaimer?: string;
 }
 
 export interface AIDetectionResult {
