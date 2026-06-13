@@ -80,14 +80,14 @@ body {
   box-shadow:
     0 8px 32px rgba(124, 58, 237, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
   transform-style: preserve-3d;
 }
 
 .glass-card:hover {
-  transform: translateY(-6px) rotateX(2deg) rotateY(-2deg) translateZ(8px);
+  transform: translateY(-8px) rotateX(4deg) rotateY(-3deg) translateZ(12px);
   box-shadow:
-    0 24px 56px rgba(124, 58, 237, 0.16),
+    0 32px 64px rgba(124, 58, 237, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
@@ -475,12 +475,14 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(12px);
+  transform-style: preserve-3d;
+  transition: border-color 0.35s, box-shadow 0.35s, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .marketing-dark .marketing-agent-card:hover {
-  border-color: rgba(167, 139, 250, 0.4);
-  box-shadow: 0 20px 48px rgba(124, 58, 237, 0.15);
-  transform: translateY(-4px);
+  border-color: rgba(167, 139, 250, 0.45);
+  box-shadow: 0 28px 56px rgba(124, 58, 237, 0.22);
+  transform: translateY(-10px) rotateX(5deg) rotateY(-4deg) translateZ(16px);
 }
 
 .marketing-dark .marketing-agent-card h3 {
@@ -497,13 +499,14 @@ body {
   background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(16px);
   padding: 1.5rem;
-  transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+  transform-style: preserve-3d;
+  transition: border-color 0.35s, box-shadow 0.35s, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .marketing-bento-card:hover {
-  border-color: rgba(167, 139, 250, 0.35);
-  box-shadow: 0 16px 48px rgba(124, 58, 237, 0.12);
-  transform: translateY(-2px);
+  border-color: rgba(167, 139, 250, 0.4);
+  box-shadow: 0 24px 56px rgba(124, 58, 237, 0.18);
+  transform: translateY(-6px) rotateX(3deg) rotateY(2deg) translateZ(10px);
 }
 
 .marketing-bento-highlight {
@@ -578,12 +581,13 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
   padding: 1.5rem;
-  transition: border-color 0.3s, transform 0.3s;
+  transform-style: preserve-3d;
+  transition: border-color 0.35s, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .marketing-audience-card:hover {
-  border-color: rgba(167, 139, 250, 0.3);
-  transform: translateY(-3px);
+  border-color: rgba(167, 139, 250, 0.35);
+  transform: translateY(-6px) rotateX(3deg) translateZ(8px);
 }
 
 .marketing-security-panel {
@@ -825,6 +829,277 @@ body {
   animation-delay: -4s;
 }
 
+/* ── Global 3D scene layer (all pages) ── */
+:root {
+  --mx: 0;
+  --my: 0;
+}
+
+.scene-3d-layer {
+  transform: translate(
+    calc(var(--mx) * 8px),
+    calc(var(--my) * 6px)
+  );
+  transition: transform 0.4s ease-out;
+}
+
+.scene-3d-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  animation: scene-orb-float 14s ease-in-out infinite;
+  opacity: 0.85;
+}
+
+.scene-3d-orb-1 {
+  left: 8%;
+  top: 12%;
+  width: 320px;
+  height: 320px;
+  background: rgba(124, 58, 237, 0.18);
+}
+
+.scene-3d-orb-2 {
+  right: 10%;
+  top: 35%;
+  width: 260px;
+  height: 260px;
+  background: rgba(6, 182, 212, 0.14);
+  animation-delay: -5s;
+  animation-duration: 18s;
+}
+
+.scene-3d-orb-3 {
+  left: 35%;
+  bottom: 8%;
+  width: 200px;
+  height: 200px;
+  background: rgba(236, 72, 153, 0.1);
+  animation-delay: -9s;
+  animation-duration: 16s;
+}
+
+.scene-3d-orb-marketing .scene-3d-orb-1,
+.scene-3d-orb-marketing.scene-3d-orb-1 {
+  background: rgba(124, 58, 237, 0.22);
+}
+
+.scene-3d-orb-dashboard .scene-3d-orb-1,
+.scene-3d-orb-dashboard.scene-3d-orb-1 {
+  background: rgba(124, 58, 237, 0.14);
+}
+
+.scene-3d-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(167, 139, 250, 0.12);
+  transform-style: preserve-3d;
+}
+
+.scene-3d-ring-a {
+  left: 20%;
+  top: 30%;
+  width: 180px;
+  height: 180px;
+  transform: rotateX(72deg) rotateZ(0deg);
+  animation: scene-ring-spin 28s linear infinite;
+}
+
+.scene-3d-ring-b {
+  right: 18%;
+  bottom: 22%;
+  width: 140px;
+  height: 140px;
+  border-color: rgba(6, 182, 212, 0.15);
+  transform: rotateX(68deg);
+  animation: scene-ring-spin-reverse 22s linear infinite;
+}
+
+.scene-3d-cube {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(167, 139, 250, 0.25);
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(6, 182, 212, 0.08));
+  backdrop-filter: blur(8px);
+  transform-style: preserve-3d;
+  animation: scene-cube-tumble 20s ease-in-out infinite;
+  box-shadow: 0 8px 32px rgba(124, 58, 237, 0.15);
+}
+
+.scene-3d-cube-a {
+  left: 12%;
+  bottom: 28%;
+}
+
+.scene-3d-cube-b {
+  right: 22%;
+  top: 18%;
+  animation-delay: -8s;
+  width: 36px;
+  height: 36px;
+}
+
+.scene-3d-particles {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1.5px 1.5px at 15% 25%, rgba(167, 139, 250, 0.7), transparent),
+    radial-gradient(1px 1px at 55% 65%, rgba(6, 182, 212, 0.5), transparent),
+    radial-gradient(1.5px 1.5px at 75% 15%, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(1px 1px at 35% 85%, rgba(167, 139, 250, 0.35), transparent);
+  background-size: 240px 240px;
+  animation: particles-drift 24s linear infinite;
+  opacity: 0.5;
+}
+
+.scene-3d-beam {
+  position: absolute;
+  width: 2px;
+  height: 40vh;
+  background: linear-gradient(to bottom, transparent, rgba(167, 139, 250, 0.35), transparent);
+  transform-origin: top center;
+  animation: scene-beam-sway 8s ease-in-out infinite;
+}
+
+.scene-3d-beam-a {
+  left: 30%;
+  top: 0;
+  transform: rotate(12deg);
+}
+
+.scene-3d-beam-b {
+  right: 25%;
+  top: 0;
+  transform: rotate(-8deg);
+  animation-delay: -3s;
+}
+
+@keyframes scene-orb-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(24px, -20px) scale(1.06); }
+  66% { transform: translate(-16px, 14px) scale(0.96); }
+}
+
+@keyframes scene-ring-spin {
+  from { transform: rotateX(72deg) rotateZ(0deg); }
+  to { transform: rotateX(72deg) rotateZ(360deg); }
+}
+
+@keyframes scene-ring-spin-reverse {
+  from { transform: rotateX(68deg) rotateZ(360deg); }
+  to { transform: rotateX(68deg) rotateZ(0deg); }
+}
+
+@keyframes scene-cube-tumble {
+  0%, 100% {
+    transform: perspective(600px) rotateX(20deg) rotateY(0deg) translateY(0);
+  }
+  25% {
+    transform: perspective(600px) rotateX(35deg) rotateY(90deg) translateY(-12px);
+  }
+  50% {
+    transform: perspective(600px) rotateX(15deg) rotateY(180deg) translateY(0);
+  }
+  75% {
+    transform: perspective(600px) rotateX(40deg) rotateY(270deg) translateY(-8px);
+  }
+}
+
+@keyframes scene-beam-sway {
+  0%, 100% { opacity: 0.3; transform: rotate(12deg) scaleY(1); }
+  50% { opacity: 0.7; transform: rotate(18deg) scaleY(1.1); }
+}
+
+@keyframes float-3d-idle {
+  0%, 100% { transform: translateY(0) translateZ(0); }
+  50% { transform: translateY(-6px) translateZ(4px); }
+}
+
+.float-3d-idle {
+  animation: float-3d-idle 5s ease-in-out infinite;
+}
+
+@keyframes page-depth-in {
+  from {
+    opacity: 0;
+    transform: perspective(1200px) translateZ(-30px) translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(1200px) translateZ(0) translateY(0);
+  }
+}
+
+.dashboard-page-3d {
+  transform-style: preserve-3d;
+  animation: page-depth-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.header-3d {
+  transform-style: preserve-3d;
+  box-shadow:
+    0 4px 24px rgba(124, 58, 237, 0.06),
+    0 1px 0 rgba(255, 255, 255, 0.8) inset;
+}
+
+.panel-3d-wrap,
+.panel-3d-inner {
+  transform-style: preserve-3d;
+}
+
+.card-3d {
+  transform-style: preserve-3d;
+  transition:
+    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.4s ease;
+}
+
+.card-3d:hover {
+  transform: translateY(-8px) rotateX(3deg) rotateY(-2deg) translateZ(10px);
+  box-shadow:
+    0 28px 60px rgba(124, 58, 237, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.btn-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-3d:active:not(:disabled) {
+  transform: translateY(2px) scale(0.98) translateZ(-2px);
+  box-shadow: 0 2px 12px var(--glow-violet);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-3d-layer,
+  .scene-3d-orb,
+  .scene-3d-ring,
+  .scene-3d-cube,
+  .scene-3d-particles,
+  .scene-3d-beam,
+  .float-3d-idle,
+  .dashboard-page-3d,
+  .animate-float,
+  .animate-mesh-drift,
+  .animate-mesh-drift-reverse,
+  .hero-orbit-track,
+  .hero-scene-ring-1,
+  .hero-scene-ring-2 {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .glass-card:hover,
+  .card-3d:hover,
+  .marketing-dark .marketing-agent-card:hover,
+  .marketing-bento-card:hover {
+    transform: none !important;
+  }
+}
+
 .float-3d-card {
   transform-style: preserve-3d;
   will-change: transform;
@@ -860,8 +1135,18 @@ body {
 }
 
 .admin-stat-card:hover {
-  transform: translateY(-3px) translateZ(6px);
-  box-shadow: 0 16px 40px rgba(124, 58, 237, 0.12);
+  transform: translateY(-5px) rotateX(3deg) translateZ(10px);
+  box-shadow: 0 20px 48px rgba(124, 58, 237, 0.16);
+}
+
+.admin-page-3d {
+  animation: page-depth-in 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.auth-logo-3d {
+  transform-style: preserve-3d;
+  animation: float-3d-idle 4s ease-in-out infinite;
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4);
 }
 
 /* ── Formatted tool editor (H1–H6, bold, paste from Docs) ── */

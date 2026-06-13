@@ -50,7 +50,7 @@ function LoginForm() {
   };
 
   return (
-    <Card className="w-full max-w-md border-violet-100 shadow-lg">
+    <Card className="w-full max-w-md border-violet-100 glass-card shadow-lg">
       <CardHeader>
         <CardTitle className="font-display text-2xl">Welcome back</CardTitle>
         <CardDescription>Sign in to your WriteGuard AI account</CardDescription>

@@ -18,7 +18,7 @@ export function DashboardHeader({
   const shell = useDashboardShell();
 
   return (
-    <header className="relative shrink-0 border-b border-violet-100/60 glass-panel px-4 py-4 sm:px-6 lg:px-8 lg:py-5">
+    <header className="header-3d relative shrink-0 border-b border-violet-100/60 glass-panel px-4 py-4 sm:px-6 lg:px-8 lg:py-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div className="flex min-w-0 items-start gap-3">
           {shell && (

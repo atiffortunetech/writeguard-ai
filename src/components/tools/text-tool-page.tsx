@@ -12,6 +12,7 @@ import { getToolBySlug } from "@/lib/tools-registry";
 import { FormattedTextInput } from "@/components/tools/formatted-text-input";
 import { FormattedTextOutput } from "@/components/tools/formatted-text-output";
 import { useFormattedContent } from "@/hooks/use-formatted-content";
+import { Float3D } from "@/components/ui/float-3d";
 
 interface ToolResult {
   result: string;
@@ -55,6 +56,7 @@ export function TextToolPage({ slug }: { slug: string }) {
       <div className="dashboard-content">
         <div className="grid gap-6 lg:grid-cols-2">
           <AnimateIn direction="right">
+            <Float3D autoFloat intensity={12}>
             <Card className="glass-card border-0">
               <div className="h-1 bg-gradient-to-r from-violet-500 to-cyan-400" />
               <CardHeader>
@@ -82,9 +84,11 @@ export function TextToolPage({ slug }: { slug: string }) {
                 </Button>
               </CardContent>
             </Card>
+            </Float3D>
           </AnimateIn>
 
           <AnimateIn direction="left" delay={100}>
+            <Float3D autoFloat intensity={12}>
             <Card className="glass-card border-0">
               <div className="h-1 bg-gradient-to-r from-emerald-400 to-cyan-400" />
               <CardHeader>
@@ -147,6 +151,7 @@ export function TextToolPage({ slug }: { slug: string }) {
                 )}
               </CardContent>
             </Card>
+            </Float3D>
           </AnimateIn>
         </div>
       </div>

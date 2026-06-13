@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { DashboardSidebar } from "@/components/dashboard/sidebar";
 import { MeshBackground } from "@/components/ui/mesh-background";
+import { Scene3DLayer } from "@/components/ui/scene-3d-layer";
 import { DashboardShellContext } from "@/components/dashboard/dashboard-shell-context";
 import { cn } from "@/lib/utils";
 
@@ -32,6 +33,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     <DashboardShellContext.Provider value={shellValue}>
       <div className="dashboard-shell relative flex h-[100dvh] overflow-hidden bg-slate-950">
         <MeshBackground variant="dashboard" />
+        <Scene3DLayer variant="dashboard" />
         <div className="dashboard-grid-overlay" aria-hidden />
         <div className="dashboard-orb dashboard-orb-a hidden sm:block" aria-hidden />
         <div className="dashboard-orb dashboard-orb-b hidden md:block" aria-hidden />
@@ -55,7 +57,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         </div>
 
         <div className="dashboard-main relative z-10 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-          {children}
+          <div className="dashboard-page-3d flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+            {children}
+          </div>
         </div>
       </div>
     </DashboardShellContext.Provider>

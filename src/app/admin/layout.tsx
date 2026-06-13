@@ -13,6 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { MeshBackground } from "@/components/ui/mesh-background";
+import { Scene3DLayer } from "@/components/ui/scene-3d-layer";
 
 const items = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard },
@@ -31,6 +32,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="admin-panel relative flex h-screen overflow-hidden bg-black text-slate-100">
       <MeshBackground variant="marketing" />
+      <Scene3DLayer variant="admin" />
       <div className="marketing-noise" aria-hidden />
       <div className="marketing-grid-overlay opacity-40" aria-hidden />
 
@@ -106,7 +108,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </aside>
 
-      <main className="relative z-10 flex-1 overflow-y-auto">{children}</main>
+      <main className="relative z-10 flex-1 overflow-y-auto admin-page-3d">{children}</main>
     </div>
   );
 }
