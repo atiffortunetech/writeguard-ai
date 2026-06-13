@@ -452,6 +452,36 @@ body {
 .marketing-dark .marketing-hero {
   padding: 5rem 0 4rem;
   text-align: left;
+  overflow: hidden;
+  position: relative;
+  isolation: isolate;
+}
+
+@media (max-width: 1023px) {
+  .marketing-dark .marketing-hero {
+    padding-top: 4.5rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .marketing-dark .marketing-hero .gradient-text {
+    animation: none;
+    background: linear-gradient(135deg, #a78bfa, #06b6d4);
+    background-size: 100% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .marketing-cta-primary.btn-glow::after {
+    animation: none;
+    display: none;
+  }
+
+  .marketing-cta-primary.btn-glow {
+    animation: none;
+    background: linear-gradient(135deg, #7c3aed, #6366f1);
+    background-size: 100% auto;
+  }
 }
 
 .marketing-dark .marketing-eyebrow {
@@ -618,6 +648,7 @@ body {
   width: 100%;
   height: 420px;
   perspective: 1200px;
+  overflow: hidden;
 }
 
 @media (min-width: 1024px) {
@@ -856,6 +887,17 @@ body {
     calc(var(--my) * 6px)
   );
   transition: transform 0.4s ease-out;
+}
+
+@media (max-width: 639px) {
+  .scene-3d-layer {
+    transform: none;
+    transition: none;
+  }
+
+  .scene-3d-beam {
+    display: none;
+  }
 }
 
 .scene-3d-orb {

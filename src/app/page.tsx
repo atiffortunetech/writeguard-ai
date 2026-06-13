@@ -39,22 +39,40 @@ export default function HomePage() {
               </p>
             </AnimateIn>
             <AnimateIn delay={200}>
-              <div className="flex flex-col gap-4 sm:flex-row">
-                <Button size="lg" className="btn-glow h-12 border-0 px-8 text-base text-white" asChild>
+              <div className="flex w-full flex-col gap-4 sm:flex-row">
+                <Button
+                  size="lg"
+                  className="btn-glow marketing-cta-primary h-12 w-full border-0 px-8 text-base text-white sm:w-auto"
+                  asChild
+                >
                   <Link href="/signup">Sign up — It&apos;s free</Link>
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
-                  className="h-12 border-white/20 bg-transparent px-8 text-base text-white hover:bg-white/10"
+                  className="h-12 w-full border-white/20 bg-transparent px-8 text-base text-white hover:bg-white/10 sm:w-auto"
                   asChild
                 >
                   <Link href="/features">Explore features</Link>
                 </Button>
               </div>
             </AnimateIn>
+
+            {/* Mobile: static stats — no 3D orbit (prevents overlap/blink) */}
+            <div className="mt-8 grid grid-cols-2 gap-3 lg:hidden">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-violet-300">Grammar</p>
+                <p className="font-display text-2xl font-bold text-white">98</p>
+                <p className="text-xs text-white/50">Clarity score</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-cyan-300">AI Risk</p>
+                <p className="font-display text-2xl font-bold text-emerald-400">Low</p>
+                <p className="text-xs text-white/50">Human-like tone</p>
+              </div>
+            </div>
           </div>
-          <AnimateIn delay={300} direction="left">
+          <AnimateIn delay={300} direction="left" className="hidden lg:block">
             <HeroScene3D />
           </AnimateIn>
         </div>

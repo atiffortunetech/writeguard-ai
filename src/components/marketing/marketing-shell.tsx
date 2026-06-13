@@ -14,11 +14,11 @@ export function MarketingShell({
     <MouseParallaxRoot>
       <div className="marketing-dark relative min-h-screen overflow-x-hidden bg-black text-white">
         <MeshBackground variant="marketing" />
-        <Scene3DLayer variant="marketing" />
+        <Scene3DLayer variant="marketing" className="hidden sm:block" />
         <div className="marketing-noise" aria-hidden />
         <div className="marketing-grid-overlay" aria-hidden />
         <MarketingHeader />
-        <main className="relative z-10">{children}</main>
+        <main className="relative z-10 overflow-x-hidden">{children}</main>
         {showFooter && <MarketingFooter />}
       </div>
     </MouseParallaxRoot>
