@@ -171,10 +171,11 @@ export const WRITING_TOOLS: WritingTool[] = [
   {
     slug: "paraphrase",
     title: "Paraphrasing Tool",
-    description: "Rephrase text while keeping the same meaning",
+    description: "Rephrase text in 6 styles while keeping the same meaning",
     icon: RefreshCw,
-    type: "ai",
+    type: "page",
     category: "Rewrite & Tone",
+    href: "/dashboard/tools/paraphrase",
     actionLabel: "Paraphrase",
   },
   {

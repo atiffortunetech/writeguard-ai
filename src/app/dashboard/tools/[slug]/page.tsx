@@ -85,7 +85,6 @@ export function generateStaticParams() {
     "punctuation-checker",
     "passive-voice-checker",
     "proofreader",
-    "paraphrase",
     "tone-detector",
     "citation-generator",
     "citation-finder",

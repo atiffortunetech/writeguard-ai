@@ -15,10 +15,10 @@ import { Badge } from "@/components/ui/badge";
 import {
   FileText,
   Sparkles,
-  Mic2,
   Shield,
   ScanSearch,
   PenLine,
+  RefreshCw,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
@@ -27,7 +27,7 @@ const quickActions = [
   { href: "/dashboard/tools", label: "All Writing Tools", icon: Sparkles },
   { href: "/dashboard/tools/grammar-checker", label: "Grammar Checker", icon: Sparkles },
   { href: "/dashboard/humanizer", label: "AI Humanizer", icon: Sparkles },
-  { href: "/dashboard/tools/paraphrase", label: "Paraphrase", icon: FileText },
+  { href: "/dashboard/tools/paraphrase", label: "Paraphrasing Tool", icon: RefreshCw },
   { href: "/dashboard/plagiarism", label: "Plagiarism Check", icon: Shield },
   { href: "/dashboard/ai-detector", label: "AI Detector", icon: ScanSearch },
   { href: "/dashboard/tools/ai-chat", label: "AI Chat", icon: PenLine },

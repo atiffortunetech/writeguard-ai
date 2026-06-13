@@ -18,6 +18,7 @@ import {
   ImageIcon,
   Brain,
   ClipboardList,
+  RefreshCw,
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -45,6 +46,7 @@ const coreLinks = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/writing-studio", label: "Writing Studio", icon: Brain, featureId: "writing-studio" },
   { href: "/dashboard/tools/sop-reports", label: "SOP & Reports", icon: ClipboardList, featureId: "sop-reports" },
+  { href: "/dashboard/tools/paraphrase", label: "Paraphrasing", icon: RefreshCw, featureId: "paraphrase" },
   { href: "/dashboard/tools", label: "All Tools", icon: LayoutGrid },
   { href: "/dashboard/brand-images", label: "Brand Images", icon: ImageIcon, featureId: "brand-images" },
   { href: "/dashboard/editor/new", label: "New Document", icon: PenLine },

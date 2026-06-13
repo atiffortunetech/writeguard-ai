@@ -2,6 +2,7 @@ import { getAIProvider } from "@/providers/ai";
 import { TOOL_PROMPTS, CHAT_SYSTEM, AGENT_PROMPTS, RESUME_SYSTEM } from "@/prompts/tools";
 import { GRAMMAR_ANALYSIS_SYSTEM, buildGrammarAnalysisPrompt } from "@/prompts/writing";
 import { enhanceSystemPrompt } from "@/prompts/intelligence-layer";
+import { runParaphrase } from "@/lib/run-paraphrase";
 import OpenAI from "openai";
 
 export interface ToolRunResult {
@@ -71,12 +72,10 @@ export async function runWritingTool(
   }
 
   if (toolSlug === "paraphrase") {
-    const provider = getAIProvider();
-    const rewritten = await provider.rewrite(text, "improve_clarity");
+    const paraphrased = await runParaphrase(text, "standard");
     return {
-      result: rewritten.rewrittenText,
-      summary: rewritten.explanation ?? "Text paraphrased successfully.",
-      scores: rewritten.scores as Record<string, number> | undefined,
+      result: paraphrased.result,
+      summary: paraphrased.summary,
     };
   }
 
