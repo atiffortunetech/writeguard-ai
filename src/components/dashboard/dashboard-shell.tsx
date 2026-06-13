@@ -3,8 +3,6 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { DashboardSidebar } from "@/components/dashboard/sidebar";
-import { MeshBackground } from "@/components/ui/mesh-background";
-import { Scene3DLayer } from "@/components/ui/scene-3d-layer";
 import { DashboardShellContext } from "@/components/dashboard/dashboard-shell-context";
 import { cn } from "@/lib/utils";
 
@@ -31,12 +29,11 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
   return (
     <DashboardShellContext.Provider value={shellValue}>
-      <div className="dashboard-shell relative flex h-[100dvh] overflow-hidden bg-slate-950">
-        <MeshBackground variant="dashboard" />
-        <Scene3DLayer variant="dashboard" />
-        <div className="dashboard-grid-overlay" aria-hidden />
-        <div className="dashboard-orb dashboard-orb-a hidden sm:block" aria-hidden />
-        <div className="dashboard-orb dashboard-orb-b hidden md:block" aria-hidden />
+      <div className="dashboard-shell relative flex h-[100dvh] overflow-hidden bg-slate-50">
+        <div
+          aria-hidden
+          className="pointer-events-none fixed inset-0 -z-10 bg-gradient-to-br from-slate-50 via-violet-50/40 to-cyan-50/30"
+        />
 
         {menuOpen && (
           <button

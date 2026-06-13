@@ -4,7 +4,6 @@ import { useMemo } from "react";
 import { DashboardHeader } from "@/components/dashboard/header";
 import { FormattedTextInput } from "@/components/tools/formatted-text-input";
 import { useFormattedContent } from "@/hooks/use-formatted-content";
-import { Float3D } from "@/components/ui/float-3d";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { computeTextStats } from "@/lib/text-stats";
 import { getToolBySlug } from "@/lib/tools-registry";
@@ -53,7 +52,6 @@ export function CounterToolPage({
       <DashboardHeader title={tool.title} description={tool.description} />
       <div className="dashboard-content">
         <div className="grid gap-6 lg:grid-cols-2">
-          <Float3D autoFloat intensity={10}>
           <Card className="glass-card border-0">
             <CardHeader>
               <CardTitle className="font-display">Your text</CardTitle>
@@ -62,9 +60,7 @@ export function CounterToolPage({
               <FormattedTextInput onChange={onFormattedChange} minHeight="320px" />
             </CardContent>
           </Card>
-          </Float3D>
 
-          <Float3D autoFloat intensity={10}>
           <Card className="glass-card border-0">
             <div className="h-1 bg-gradient-to-r from-violet-500 to-fuchsia-400" />
             <CardHeader>
@@ -95,7 +91,6 @@ export function CounterToolPage({
               </div>
             </CardContent>
           </Card>
-          </Float3D>
         </div>
       </div>
     </>

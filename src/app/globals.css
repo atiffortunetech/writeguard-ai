@@ -835,7 +835,83 @@ body {
 
 /* ── Dashboard 3D shell ── */
 .dashboard-shell {
-  perspective: 1200px;
+  perspective: none;
+}
+
+/* Dashboard: static UI — no decorative animations (keeps loading spinners only) */
+.dashboard-shell .gradient-text,
+.dashboard-shell .gradient-text-warm {
+  animation: none !important;
+  background-position: 0% center;
+}
+
+.dashboard-shell .btn-glow,
+.dashboard-shell .btn-glow::after {
+  animation: none !important;
+}
+
+.dashboard-shell .btn-glow:hover {
+  transform: none !important;
+}
+
+.dashboard-shell .glass-panel,
+.dashboard-shell .glass-panel-dark,
+.dashboard-shell .glass-card {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.dashboard-shell .glass-card,
+.dashboard-shell .glass-card:hover {
+  transition: none !important;
+  transform: none !important;
+}
+
+.dashboard-shell .float-3d-nav,
+.dashboard-shell .float-3d-nav:hover,
+.dashboard-shell .float-3d-card,
+.dashboard-shell .float-3d-idle {
+  transform: none !important;
+  transition: none !important;
+  will-change: auto !important;
+  animation: none !important;
+}
+
+.dashboard-shell .dashboard-content,
+.dashboard-shell .dashboard-page-3d {
+  animation: none !important;
+}
+
+.dashboard-shell .dashboard-orb,
+.dashboard-shell .dashboard-grid-overlay,
+.dashboard-shell .scene-3d-layer {
+  display: none !important;
+}
+
+.dashboard-shell .animate-mesh-drift,
+.dashboard-shell .animate-mesh-drift-reverse,
+.dashboard-shell .animate-float,
+.dashboard-shell .animate-pulse-glow,
+.dashboard-shell .animate-fade-up,
+.dashboard-shell .animate-fade-down,
+.dashboard-shell .animate-fade-left,
+.dashboard-shell .animate-fade-right,
+.dashboard-shell .animate-fade-in,
+.dashboard-shell .animate-scale-in,
+.dashboard-shell .animate-slide-in-right {
+  animation: none !important;
+}
+
+.dashboard-shell .btn-3d:active:not(:disabled),
+.dashboard-shell .motion-safe\:btn-3d:active:not(:disabled),
+.dashboard-shell .motion-safe\:hover\:-translate-y-0\.5:hover {
+  transform: none !important;
+}
+
+.dashboard-shell .dashboard-header.glass-panel {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: rgba(255, 255, 255, 0.98);
 }
 
 .dashboard-grid-overlay {
@@ -1313,7 +1389,6 @@ body {
   overflow-x: hidden;
   padding: 1rem;
   -webkit-overflow-scrolling: touch;
-  animation: page-depth-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @media (min-width: 640px) {

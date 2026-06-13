@@ -141,7 +141,7 @@ export function DashboardSidebar({ onNavigate }: DashboardSidebarProps) {
                 href={href}
                 {...navLinkProps}
                 className={cn(
-                  "float-3d-nav flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all",
+                  "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors",
                   active
                     ? "nav-glow-active text-white"
                     : "text-violet-200/70 hover:bg-white/5 hover:text-white",

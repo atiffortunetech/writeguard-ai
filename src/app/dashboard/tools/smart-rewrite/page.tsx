@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { DashboardHeader } from "@/components/dashboard/header";
-import { AnimateIn } from "@/components/ui/animate-in";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -51,8 +50,7 @@ export default function SmartRewritePage() {
         <Badge className="mb-6 bg-violet-100 text-violet-800">Pro · 8 advanced modes</Badge>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <AnimateIn direction="right">
-            <Card className="glass-card border-0">
+          <Card className="glass-card border-0">
               <div className="h-1 bg-gradient-to-r from-violet-500 to-cyan-400" />
               <CardHeader>
                 <CardTitle className="font-display flex items-center gap-2">
@@ -88,7 +86,7 @@ export default function SmartRewritePage() {
                 <Button
                   onClick={run}
                   disabled={loading || isEmpty}
-                  className="btn-glow w-full border-0 text-white"
+                  className="w-full border-0 text-white"
                 >
                   {loading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -98,10 +96,8 @@ export default function SmartRewritePage() {
                 </Button>
               </CardContent>
             </Card>
-          </AnimateIn>
 
-          <AnimateIn direction="left" delay={100}>
-            <Card className="glass-card border-0">
+          <Card className="glass-card border-0">
               <div className="h-1 bg-gradient-to-r from-emerald-400 to-cyan-400" />
               <CardHeader>
                 <CardTitle className="font-display">Output</CardTitle>
@@ -120,7 +116,6 @@ export default function SmartRewritePage() {
                 )}
               </CardContent>
             </Card>
-          </AnimateIn>
         </div>
       </div>
     </>

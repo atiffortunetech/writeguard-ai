@@ -36,7 +36,7 @@ export function DashboardHeader({
           )}
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 shrink-0 text-violet-500 lg:animate-pulse-glow" />
+              <Sparkles className="h-4 w-4 shrink-0 text-violet-500" />
               <h1 className="font-display truncate text-xl font-bold tracking-tight gradient-text sm:text-2xl">
                 {title}
               </h1>
@@ -51,7 +51,7 @@ export function DashboardHeader({
 
         <div className="flex flex-wrap items-center gap-2 sm:justify-end">
           {isAdmin && (
-            <Badge className="border-violet-200 bg-violet-50 text-violet-700 text-[10px] sm:text-xs lg:animate-pulse-glow">
+            <Badge className="border-violet-200 bg-violet-50 text-violet-700 text-[10px] sm:text-xs">
               ADMIN · Unlimited
             </Badge>
           )}

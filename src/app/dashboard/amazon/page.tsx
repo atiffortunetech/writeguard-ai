@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardHeader } from "@/components/dashboard/header";
-import { AnimateIn } from "@/components/ui/animate-in";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -69,9 +68,7 @@ export default function AmazonPage() {
       <DashboardHeader title="Amazon Listing Optimizer" description="Generate SEO-optimized Amazon product listings" />
       <div className="dashboard-content">
         <div className="grid gap-8 lg:grid-cols-2">
-          {/* Input panel */}
-          <AnimateIn direction="right">
-            <Card className="glass-card overflow-hidden border-0">
+          <Card className="glass-card overflow-hidden border-0">
               <div className="h-1 bg-gradient-to-r from-orange-500 via-amber-400 to-yellow-400" />
               <CardHeader>
                 <CardTitle className="font-display flex items-center gap-2 text-xl">
@@ -124,15 +121,12 @@ export default function AmazonPage() {
                 </Button>
               </CardContent>
             </Card>
-          </AnimateIn>
 
-          {/* Output panel */}
           <div className="space-y-4">
             {!result ? (
-              <AnimateIn direction="left" delay={200}>
-                <Card className="glass-card border-0 border-dashed">
+              <Card className="glass-card border-0 border-dashed">
                   <CardContent className="flex flex-col items-center justify-center py-20 text-center">
-                    <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-100 to-amber-100 animate-float">
+                    <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-100 to-amber-100">
                       <ShoppingBag className="h-8 w-8 text-orange-500" />
                     </div>
                     <p className="font-display text-lg font-semibold text-slate-700">
@@ -143,11 +137,9 @@ export default function AmazonPage() {
                     </p>
                   </CardContent>
                 </Card>
-              </AnimateIn>
             ) : (
               <>
-                <AnimateIn className="animate-scale-in">
-                  <Card className="glass-card border-0 overflow-hidden">
+                <Card className="glass-card border-0 overflow-hidden">
                     <div className="h-1 bg-gradient-to-r from-violet-500 to-cyan-400" />
                     <CardHeader className="flex flex-row items-center justify-between">
                       <CardTitle className="font-display flex items-center gap-2">
@@ -170,10 +162,8 @@ export default function AmazonPage() {
                       </div>
                     </CardContent>
                   </Card>
-                </AnimateIn>
 
-                <AnimateIn delay={150} className="animate-slide-in-right">
-                  <Card className="glass-card border-0">
+                <Card className="glass-card border-0">
                     <CardHeader className="flex flex-row justify-between">
                       <CardTitle className="font-display">Listing Output</CardTitle>
                       <Button size="sm" variant="outline" onClick={saveListing}>
@@ -243,7 +233,6 @@ export default function AmazonPage() {
                       )}
                     </CardContent>
                   </Card>
-                </AnimateIn>
               </>
             )}
           </div>

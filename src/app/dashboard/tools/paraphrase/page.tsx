@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { DashboardHeader } from "@/components/dashboard/header";
-import { AnimateIn } from "@/components/ui/animate-in";
-import { Float3D } from "@/components/ui/float-3d";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -58,9 +56,7 @@ export default function ParaphrasePage() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <AnimateIn direction="right">
-            <Float3D>
-              <Card className="glass-card border-0">
+          <Card className="glass-card border-0">
                 <div className="h-1 bg-gradient-to-r from-violet-500 to-fuchsia-500" />
                 <CardHeader>
                   <CardTitle className="font-display flex items-center gap-2 text-base sm:text-lg">
@@ -100,7 +96,7 @@ export default function ParaphrasePage() {
                   <Button
                     onClick={run}
                     disabled={loading || isEmpty}
-                    className="btn-glow w-full border-0 text-white"
+                    className="w-full border-0 text-white"
                   >
                     {loading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -110,12 +106,8 @@ export default function ParaphrasePage() {
                   </Button>
                 </CardContent>
               </Card>
-            </Float3D>
-          </AnimateIn>
 
-          <AnimateIn direction="left" delay={100}>
-            <Float3D>
-              <Card className="glass-card border-0">
+          <Card className="glass-card border-0">
                 <div className="h-1 bg-gradient-to-r from-emerald-400 to-cyan-400" />
                 <CardHeader>
                   <CardTitle className="font-display text-base sm:text-lg">Paraphrased output</CardTitle>
@@ -134,8 +126,6 @@ export default function ParaphrasePage() {
                   )}
                 </CardContent>
               </Card>
-            </Float3D>
-          </AnimateIn>
         </div>
       </div>
     </>

@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { DashboardHeader } from "@/components/dashboard/header";
-import { AnimateIn } from "@/components/ui/animate-in";
 import { Button } from "@/components/ui/button";
 import { FormattedTextInput } from "@/components/tools/formatted-text-input";
 import { FormattedTextOutput } from "@/components/tools/formatted-text-output";
@@ -212,8 +211,7 @@ export default function TranslatorPage() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <AnimateIn direction="right">
-            <Card className="glass-card border-0">
+          <Card className="glass-card border-0">
               <div className="h-1 bg-gradient-to-r from-violet-500 to-cyan-400" />
               <CardHeader>
                 <CardTitle className="font-display flex items-center gap-2">
@@ -306,7 +304,7 @@ export default function TranslatorPage() {
                 <Button
                   onClick={translate}
                   disabled={loading || isEmpty}
-                  className="btn-glow h-11 w-full border-0 text-white"
+                  className="h-11 w-full border-0 text-white"
                 >
                   {loading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -319,10 +317,8 @@ export default function TranslatorPage() {
                 </Button>
               </CardContent>
             </Card>
-          </AnimateIn>
 
-          <AnimateIn direction="left" delay={100}>
-            <Card className="glass-card border-0">
+          <Card className="glass-card border-0">
               <div className="h-1 bg-gradient-to-r from-emerald-400 to-cyan-400" />
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="font-display">Translation</CardTitle>
@@ -359,7 +355,6 @@ export default function TranslatorPage() {
                 )}
               </CardContent>
             </Card>
-          </AnimateIn>
         </div>
       </div>
     </>

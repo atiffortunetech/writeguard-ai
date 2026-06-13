@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { DashboardHeader } from "@/components/dashboard/header";
-import { AnimateIn } from "@/components/ui/animate-in";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -326,8 +325,7 @@ export default function BrandImagesPage() {
         <div className="grid gap-6 xl:grid-cols-3">
           {/* Input column */}
           <div className="space-y-6 xl:col-span-1">
-            <AnimateIn direction="right">
-              <Card className="glass-card border-0">
+            <Card className="glass-card border-0">
                 <div className="h-1 bg-gradient-to-r from-violet-500 to-cyan-400" />
                 <CardHeader>
                   <CardTitle className="font-display flex items-center gap-2 text-base">
@@ -399,7 +397,6 @@ export default function BrandImagesPage() {
                   </div>
                 </CardContent>
               </Card>
-            </AnimateIn>
 
             <Card className="glass-card border-0">
               <div className="h-1 bg-gradient-to-r from-fuchsia-500 to-violet-500" />
@@ -603,7 +600,7 @@ export default function BrandImagesPage() {
                   <Button
                     onClick={() => generate(false)}
                     disabled={loading || !canGenerate}
-                    className="btn-glow border-0 text-white"
+                    className="border-0 text-white"
                   >
                     {loading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />

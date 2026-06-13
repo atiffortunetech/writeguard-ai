@@ -3,8 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { DashboardHeader } from "@/components/dashboard/header";
-import { AnimateIn } from "@/components/ui/animate-in";
-import { Float3D } from "@/components/ui/float-3d";
 import { Button } from "@/components/ui/button";
 import { FormattedTextInput } from "@/components/tools/formatted-text-input";
 import { useFormattedContent } from "@/hooks/use-formatted-content";
@@ -84,9 +82,7 @@ export default function WritingStudioPage() {
 
         <div className="grid gap-6 xl:grid-cols-5">
           <div className="space-y-6 xl:col-span-2">
-            <AnimateIn direction="right">
-              <Float3D>
-              <Card className="glass-card border-0">
+            <Card className="glass-card border-0">
                 <div className="h-1 bg-gradient-to-r from-violet-500 to-fuchsia-500" />
                 <CardHeader>
                   <CardTitle className="font-display flex items-center gap-2 text-base">
@@ -122,7 +118,7 @@ export default function WritingStudioPage() {
                   <Button
                     onClick={analyze}
                     disabled={loading || plainText.trim().length < 10}
-                    className="btn-glow h-11 w-full border-0 text-white"
+                    className="h-11 w-full border-0 text-white"
                   >
                     {loading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -135,10 +131,7 @@ export default function WritingStudioPage() {
                   </Button>
                 </CardContent>
               </Card>
-              </Float3D>
-            </AnimateIn>
 
-            <Float3D>
             <Card className="glass-card border-0">
               <CardHeader>
                 <CardTitle className="font-display text-sm">Fix with one click</CardTitle>
@@ -164,13 +157,10 @@ export default function WritingStudioPage() {
                 })}
               </CardContent>
             </Card>
-            </Float3D>
           </div>
 
           <div className="xl:col-span-3">
-            <AnimateIn direction="left" delay={100}>
-              <Float3D>
-              <Card className="glass-card border-0">
+            <Card className="glass-card border-0">
                 <div className="h-1 bg-gradient-to-r from-emerald-400 to-cyan-400" />
                 <CardHeader>
                   <CardTitle className="font-display">Intelligence report</CardTitle>
@@ -190,8 +180,6 @@ export default function WritingStudioPage() {
                   )}
                 </CardContent>
               </Card>
-              </Float3D>
-            </AnimateIn>
           </div>
         </div>
       </div>
