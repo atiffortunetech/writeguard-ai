@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { FULL_FEATURE_LIST, FEATURE_HIGHLIGHTS } from "@/lib/marketing-content";
+import { Float3D } from "@/components/ui/float-3d";
 
 export function MarketingBento() {
   return (
@@ -22,7 +23,8 @@ export function MarketingBento() {
           {FEATURE_HIGHLIGHTS.map((item) => {
             const Icon = item.icon;
             return (
-              <div key={item.title} className="marketing-bento-card marketing-bento-highlight">
+              <Float3D key={item.title}>
+              <div className="marketing-bento-card marketing-bento-highlight h-full">
                 <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${item.gradient} shadow-lg`}>
                   <Icon className="h-6 w-6 text-white" />
                 </div>
@@ -32,6 +34,7 @@ export function MarketingBento() {
                   <p className="mt-4 font-display text-2xl font-bold gradient-text">{item.stat}</p>
                 )}
               </div>
+              </Float3D>
             );
           })}
         </div>
@@ -40,10 +43,10 @@ export function MarketingBento() {
           {FULL_FEATURE_LIST.map((feature) => {
             const Icon = feature.icon;
             return (
+              <Float3D key={feature.slug}>
               <article
-                key={feature.slug}
                 id={feature.slug}
-                className="marketing-bento-card group scroll-mt-28"
+                className="marketing-bento-card group h-full scroll-mt-28"
               >
                 <div className="mb-3 flex items-start justify-between gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-violet-300 transition-colors group-hover:border-violet-500/40 group-hover:bg-violet-500/10">
@@ -58,6 +61,7 @@ export function MarketingBento() {
                 </h3>
                 <p className="text-sm leading-relaxed text-white/50">{feature.description}</p>
               </article>
+              </Float3D>
             );
           })}
         </div>

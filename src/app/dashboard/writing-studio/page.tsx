@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { DashboardHeader } from "@/components/dashboard/header";
 import { AnimateIn } from "@/components/ui/animate-in";
+import { Float3D } from "@/components/ui/float-3d";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -19,11 +20,13 @@ import {
   RefreshCw,
   ArrowRight,
   Brain,
+  ClipboardList,
 } from "lucide-react";
 import { WritingIntelligencePanel } from "@/components/writing/writing-intelligence-panel";
 import type { WritingIntelligenceResult } from "@/lib/run-writing-intelligence";
 
 const QUICK_ACTIONS = [
+  { href: "/dashboard/tools/sop-reports", label: "SOP & Reports", icon: ClipboardList },
   { href: "/dashboard/tools/smart-rewrite", label: "Smart Rewrite", icon: RefreshCw },
   { href: "/dashboard/humanizer", label: "Humanizer", icon: Wand2 },
   { href: "/dashboard/ai-detector", label: "AI Detector", icon: ScanSearch },
@@ -81,6 +84,7 @@ export default function WritingStudioPage() {
         <div className="grid gap-6 xl:grid-cols-5">
           <div className="space-y-6 xl:col-span-2">
             <AnimateIn direction="right">
+              <Float3D>
               <Card className="glass-card border-0">
                 <div className="h-1 bg-gradient-to-r from-violet-500 to-fuchsia-500" />
                 <CardHeader>
@@ -136,8 +140,10 @@ export default function WritingStudioPage() {
                   </Button>
                 </CardContent>
               </Card>
+              </Float3D>
             </AnimateIn>
 
+            <Float3D>
             <Card className="glass-card border-0">
               <CardHeader>
                 <CardTitle className="font-display text-sm">Fix with one click</CardTitle>
@@ -163,10 +169,12 @@ export default function WritingStudioPage() {
                 })}
               </CardContent>
             </Card>
+            </Float3D>
           </div>
 
           <div className="xl:col-span-3">
             <AnimateIn direction="left" delay={100}>
+              <Float3D>
               <Card className="glass-card border-0">
                 <div className="h-1 bg-gradient-to-r from-emerald-400 to-cyan-400" />
                 <CardHeader>
@@ -187,6 +195,7 @@ export default function WritingStudioPage() {
                   )}
                 </CardContent>
               </Card>
+              </Float3D>
             </AnimateIn>
           </div>
         </div>

@@ -102,7 +102,7 @@ export default function AdminUsersPage() {
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-sm border-white/10 bg-white/5 text-white"
         />
-        <Button variant="outline" onClick={() => load(search)} className="border-white/10">
+        <Button variant="outline" onClick={() => load(search)} className="border-white/20 text-white hover:bg-white/10">
           Search
         </Button>
       </div>
@@ -160,7 +160,7 @@ export default function AdminUsersPage() {
                           <Button
                             size="sm"
                             variant="outline"
-                            className="border-white/10"
+                            className="border-white/20 text-white hover:bg-white/10"
                             disabled={saving}
                             onClick={() =>
                               setEditingId(isEditing ? null : u.id)
@@ -180,16 +180,16 @@ export default function AdminUsersPage() {
                         </>
                       )}
                       {u.banned ? (
-                        <Button size="sm" variant="outline" onClick={() => action(u.id, "unban")}>
+                        <Button size="sm" variant="outline" className="border-white/20 text-white hover:bg-white/10" onClick={() => action(u.id, "unban")}>
                           Unban
                         </Button>
                       ) : (
-                        <Button size="sm" variant="outline" onClick={() => action(u.id, "ban")}>
+                        <Button size="sm" variant="outline" className="border-white/20 text-white hover:bg-white/10" onClick={() => action(u.id, "ban")}>
                           Ban
                         </Button>
                       )}
                       {u.role !== "ADMIN" && (
-                        <Button size="sm" variant="outline" onClick={() => action(u.id, "make_admin")}>
+                        <Button size="sm" variant="outline" className="border-white/20 text-white hover:bg-white/10" onClick={() => action(u.id, "make_admin")}>
                           Make Admin
                         </Button>
                       )}

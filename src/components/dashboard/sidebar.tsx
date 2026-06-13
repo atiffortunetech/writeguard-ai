@@ -17,6 +17,7 @@ import {
   Lock,
   ImageIcon,
   Brain,
+  ClipboardList,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,7 @@ import { PLAN_DEFINITIONS } from "@/lib/stripe";
 const coreLinks = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/writing-studio", label: "Writing Studio", icon: Brain, featureId: "writing-studio" },
+  { href: "/dashboard/tools/sop-reports", label: "SOP & Reports", icon: ClipboardList, featureId: "sop-reports" },
   { href: "/dashboard/tools", label: "All Tools", icon: LayoutGrid },
   { href: "/dashboard/brand-images", label: "Brand Images", icon: ImageIcon, featureId: "brand-images" },
   { href: "/dashboard/editor/new", label: "New Document", icon: PenLine },
@@ -58,7 +60,8 @@ export function DashboardSidebar() {
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
     TOOL_CATEGORIES.forEach((c) => {
-      initial[c] = c === "Correctness" || c === "AI Intelligence";
+      initial[c] =
+        c === "Correctness" || c === "AI Intelligence" || c === "Productivity";
     });
     return initial;
   });
@@ -109,7 +112,7 @@ export function DashboardSidebar() {
                 key={item.href}
                 href={href}
                 className={cn(
-                  "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all",
+                  "float-3d-nav flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all",
                   active
                     ? "nav-glow-active text-white"
                     : "text-violet-200/70 hover:bg-white/5 hover:text-white",
