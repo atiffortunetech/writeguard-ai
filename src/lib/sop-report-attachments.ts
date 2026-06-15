@@ -3,8 +3,10 @@ export const SOP_ATTACHMENT_LIMITS = {
   maxFileBytes: 2 * 1024 * 1024,
   maxContentChars: 12_000,
   maxTotalChars: 24_000,
+  /** Max chars from attachments included in the AI prompt (avoids context overflow) */
+  maxPromptAttachmentChars: 18_000,
   accept:
-    ".txt,.md,.csv,.json,.html,.htm,.xml,.log,.rtf,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown,text/csv,application/json,text/html,text/xml,application/rtf",
+    ".txt,.md,.csv,.json,.html,.htm,.xml,.log,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown,text/csv,application/json,text/html,text/xml",
 } as const;
 
 export type SopReportAttachmentPayload = {
@@ -26,7 +28,6 @@ const TEXT_EXTENSIONS = new Set([
   "htm",
   "xml",
   "log",
-  "rtf",
 ]);
 
 function fileExtension(name: string): string {
@@ -93,4 +94,25 @@ export function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+/** Trim attachment text to fit model context when building the AI prompt */
+export function trimAttachmentsForPrompt(
+  attachments: SopReportAttachmentPayload[],
+  maxChars: number = SOP_ATTACHMENT_LIMITS.maxPromptAttachmentChars
+): SopReportAttachmentPayload[] {
+  let remaining = maxChars;
+  const trimmed: SopReportAttachmentPayload[] = [];
+
+  for (const file of attachments) {
+    if (remaining <= 0) break;
+    const content =
+      file.content.length <= remaining
+        ? file.content
+        : `${file.content.slice(0, remaining)}\n[…truncated for length]`;
+    trimmed.push({ name: file.name, content });
+    remaining -= content.length;
+  }
+
+  return trimmed;
 }

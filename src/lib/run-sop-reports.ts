@@ -7,6 +7,7 @@ import {
   type SopReportLength,
   type SopReportTone,
 } from "@/prompts/sop-reports";
+import { trimAttachmentsForPrompt } from "@/lib/sop-report-attachments";
 
 export interface SopReportSection {
   heading: string;
@@ -54,7 +55,16 @@ export async function runSopReportGenerator(
     model,
     messages: [
       { role: "system", content: enhanceSystemPrompt(SOP_REPORT_SYSTEM) },
-      { role: "user", content: buildSopReportUserPrompt(input) },
+      {
+        role: "user",
+        content: buildSopReportUserPrompt({
+          ...input,
+          topic: input.topic.trim().slice(0, 8000),
+          attachments: input.attachments?.length
+            ? trimAttachmentsForPrompt(input.attachments)
+            : undefined,
+        }),
+      },
     ],
     temperature: 0.45,
     response_format: { type: "json_object" },

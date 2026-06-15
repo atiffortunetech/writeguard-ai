@@ -131,7 +131,11 @@ export function buildSopReportUserPrompt(input: {
     typeInstruction,
     "",
     `Title: ${input.title}`,
-    `Topic / subject: ${input.topic}`,
+    input.topic.trim()
+      ? `Topic / subject: ${input.topic.trim()}`
+      : input.attachments?.length
+        ? "Topic / subject: (See reference attachments below — synthesize into the requested document type.)"
+        : "Topic / subject: (not provided)",
     input.audience ? `Target audience: ${input.audience}` : null,
     input.department ? `Department / team: ${input.department}` : null,
     `Tone: ${tone}`,

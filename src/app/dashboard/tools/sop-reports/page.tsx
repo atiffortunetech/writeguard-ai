@@ -79,54 +79,65 @@ export default function SopReportsPage() {
     setAttachmentError(null);
     setAddingAttachments(true);
 
-    const remainingSlots = SOP_ATTACHMENT_LIMITS.maxCount - attachments.length;
-    if (remainingSlots <= 0) {
-      setAttachmentError(`Maximum ${SOP_ATTACHMENT_LIMITS.maxCount} attachments allowed`);
-      setAddingAttachments(false);
-      return;
-    }
-
-    const selected = Array.from(files).slice(0, remainingSlots);
-    const next: SopReportAttachmentItem[] = [];
-    const errors: string[] = [];
-
-    for (const file of selected) {
-      if (attachments.some((item) => item.name === file.name)) {
-        errors.push(`${file.name} is already attached`);
-        continue;
+    try {
+      const remainingSlots = SOP_ATTACHMENT_LIMITS.maxCount - attachments.length;
+      if (remainingSlots <= 0) {
+        setAttachmentError(`Maximum ${SOP_ATTACHMENT_LIMITS.maxCount} attachments allowed`);
+        return;
       }
 
-      try {
-        const content = await extractSopAttachmentText(file);
-        const projectedTotal =
-          attachmentCharCount +
-          next.reduce((sum, item) => sum + item.content.length, 0) +
-          content.length;
+      const allSelected = Array.from(files);
+      const selected = allSelected.slice(0, remainingSlots);
+      const next: SopReportAttachmentItem[] = [];
+      const errors: string[] = [];
 
-        if (projectedTotal > SOP_ATTACHMENT_LIMITS.maxTotalChars) {
-          errors.push(`${file.name}: total attachment content limit reached`);
+      if (allSelected.length > remainingSlots) {
+        errors.push(
+          `Only ${remainingSlots} more file${remainingSlots === 1 ? "" : "s"} allowed — ${allSelected.length - remainingSlots} skipped`
+        );
+      }
+
+      for (const file of selected) {
+        if (
+          attachments.some((item) => item.name === file.name) ||
+          next.some((item) => item.name === file.name)
+        ) {
+          errors.push(`${file.name} is already attached`);
           continue;
         }
 
-        next.push({
-          id: crypto.randomUUID(),
-          name: file.name,
-          content,
-          size: file.size,
-        });
-      } catch (err) {
-        errors.push(err instanceof Error ? err.message : `Could not read ${file.name}`);
+        try {
+          const content = await extractSopAttachmentText(file);
+          const projectedTotal =
+            attachmentCharCount +
+            next.reduce((sum, item) => sum + item.content.length, 0) +
+            content.length;
+
+          if (projectedTotal > SOP_ATTACHMENT_LIMITS.maxTotalChars) {
+            errors.push(`${file.name}: total attachment content limit reached`);
+            continue;
+          }
+
+          next.push({
+            id: crypto.randomUUID(),
+            name: file.name,
+            content,
+            size: file.size,
+          });
+        } catch (err) {
+          errors.push(err instanceof Error ? err.message : `Could not read ${file.name}`);
+        }
       }
-    }
 
-    if (next.length > 0) {
-      setAttachments((prev) => [...prev, ...next]);
+      if (next.length > 0) {
+        setAttachments((prev) => [...prev, ...next]);
+      }
+      if (errors.length > 0) {
+        setAttachmentError(errors.join(" · "));
+      }
+    } finally {
+      setAddingAttachments(false);
     }
-    if (errors.length > 0) {
-      setAttachmentError(errors.join(" · "));
-    }
-
-    setAddingAttachments(false);
   };
 
   const removeAttachment = (id: string) => {
@@ -241,7 +252,10 @@ export default function SopReportsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Topic / explanation *</Label>
+                  <Label>
+                    Topic / explanation
+                    {attachmentCharCount < 50 ? " *" : " (optional with attachments)"}
+                  </Label>
                   <FormattedTextInput onChange={onTopicChange} minHeight="200px" />
                   <p className="text-xs text-slate-500">
                     Describe what you need, or upload reference files below (or both).
