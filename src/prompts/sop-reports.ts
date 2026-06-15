@@ -93,6 +93,7 @@ Return ONLY valid JSON:
 
 Rules:
 - Base content strictly on the user's topic and explanation; do not invent critical facts.
+- When reference attachments are provided, incorporate relevant details from them into the document.
 - If details are missing, use sensible placeholders marked [TO BE CONFIRMED] rather than fabricating specifics.
 - Use professional, clear language appropriate to the audience.
 - Match the requested length: brief = shorter sections, detailed = thorough coverage.
@@ -107,10 +108,23 @@ export function buildSopReportUserPrompt(input: {
   tone?: SopReportTone;
   length?: SopReportLength;
   additionalNotes?: string;
+  attachments?: Array<{ name: string; content: string }>;
 }): string {
   const typeInstruction = TYPE_INSTRUCTIONS[input.documentType];
   const tone = input.tone ? SOP_REPORT_TONES[input.tone] : "Professional";
   const length = input.length ? SOP_REPORT_LENGTHS[input.length] : SOP_REPORT_LENGTHS.standard;
+
+  const attachmentBlock =
+    input.attachments && input.attachments.length > 0
+      ? [
+          "",
+          "Reference attachments (use as source material — do not copy verbatim unless appropriate):",
+          ...input.attachments.map(
+            (file, index) =>
+              `--- Attachment ${index + 1}: ${file.name} ---\n${file.content}`
+          ),
+        ].join("\n")
+      : null;
 
   return [
     `Document type: ${SOP_REPORT_DOCUMENT_TYPES[input.documentType].label}`,
@@ -123,6 +137,7 @@ export function buildSopReportUserPrompt(input: {
     `Tone: ${tone}`,
     `Length: ${length}`,
     input.additionalNotes ? `Additional notes:\n${input.additionalNotes}` : null,
+    attachmentBlock,
   ]
     .filter(Boolean)
     .join("\n");

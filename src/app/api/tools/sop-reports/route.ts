@@ -7,40 +7,70 @@ import { aiRateLimiter, checkRateLimit } from "@/lib/redis";
 import { isAIConfigured } from "@/providers/ai";
 import { runSopReportGenerator } from "@/lib/run-sop-reports";
 import {
+  SOP_ATTACHMENT_LIMITS,
+  totalAttachmentChars,
+} from "@/lib/sop-report-attachments";
+import {
   SOP_REPORT_DOCUMENT_TYPES,
   SOP_REPORT_LENGTHS,
   SOP_REPORT_TONES,
 } from "@/prompts/sop-reports";
 
-const schema = z.object({
-  documentType: z.enum(
-    Object.keys(SOP_REPORT_DOCUMENT_TYPES) as [
-      keyof typeof SOP_REPORT_DOCUMENT_TYPES,
-      ...(keyof typeof SOP_REPORT_DOCUMENT_TYPES)[],
-    ]
-  ),
-  title: z.string().min(1).max(200),
-  topic: z.string().min(10).max(8000),
-  audience: z.string().max(200).optional(),
-  department: z.string().max(200).optional(),
-  tone: z
-    .enum(
-      Object.keys(SOP_REPORT_TONES) as [
-        keyof typeof SOP_REPORT_TONES,
-        ...(keyof typeof SOP_REPORT_TONES)[],
-      ]
-    )
-    .optional(),
-  length: z
-    .enum(
-      Object.keys(SOP_REPORT_LENGTHS) as [
-        keyof typeof SOP_REPORT_LENGTHS,
-        ...(keyof typeof SOP_REPORT_LENGTHS)[],
-      ]
-    )
-    .optional(),
-  additionalNotes: z.string().max(4000).optional(),
+const attachmentSchema = z.object({
+  name: z.string().min(1).max(255),
+  content: z.string().min(1).max(SOP_ATTACHMENT_LIMITS.maxContentChars),
 });
+
+const schema = z
+  .object({
+    documentType: z.enum(
+      Object.keys(SOP_REPORT_DOCUMENT_TYPES) as [
+        keyof typeof SOP_REPORT_DOCUMENT_TYPES,
+        ...(keyof typeof SOP_REPORT_DOCUMENT_TYPES)[],
+      ]
+    ),
+    title: z.string().min(1).max(200),
+    topic: z.string().max(8000),
+    audience: z.string().max(200).optional(),
+    department: z.string().max(200).optional(),
+    tone: z
+      .enum(
+        Object.keys(SOP_REPORT_TONES) as [
+          keyof typeof SOP_REPORT_TONES,
+          ...(keyof typeof SOP_REPORT_TONES)[],
+        ]
+      )
+      .optional(),
+    length: z
+      .enum(
+        Object.keys(SOP_REPORT_LENGTHS) as [
+          keyof typeof SOP_REPORT_LENGTHS,
+          ...(keyof typeof SOP_REPORT_LENGTHS)[],
+        ]
+      )
+      .optional(),
+    additionalNotes: z.string().max(4000).optional(),
+    attachments: z.array(attachmentSchema).max(SOP_ATTACHMENT_LIMITS.maxCount).optional(),
+  })
+  .superRefine((data, ctx) => {
+    const topicLen = data.topic.trim().length;
+    const attachmentChars = totalAttachmentChars(data.attachments ?? []);
+    if (topicLen < 10 && attachmentChars < 50) {
+      ctx.addIssue({
+        code: "custom",
+        message:
+          "Provide at least 10 characters in the topic field or upload reference attachments with enough content",
+        path: ["topic"],
+      });
+    }
+    if (attachmentChars > SOP_ATTACHMENT_LIMITS.maxTotalChars) {
+      ctx.addIssue({
+        code: "custom",
+        message: `Attachments exceed ${SOP_ATTACHMENT_LIMITS.maxTotalChars.toLocaleString()} total characters`,
+        path: ["attachments"],
+      });
+    }
+  });
 
 export async function POST(req: NextRequest) {
   const start = Date.now();

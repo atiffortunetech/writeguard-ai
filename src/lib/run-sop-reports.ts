@@ -30,6 +30,7 @@ export interface SopReportInput {
   tone?: SopReportTone;
   length?: SopReportLength;
   additionalNotes?: string;
+  attachments?: Array<{ name: string; content: string }>;
 }
 
 export async function runSopReportGenerator(
