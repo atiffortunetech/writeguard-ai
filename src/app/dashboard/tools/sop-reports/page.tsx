@@ -283,8 +283,11 @@ export default function SopReportsPage() {
                       {addingAttachments ? "Reading files…" : "Add reference files"}
                     </span>
                     <span className="text-xs text-slate-500">
-                      .txt, .md, .csv, .json, .html, .docx · up to 2 MB each · max{" "}
-                      {SOP_ATTACHMENT_LIMITS.maxCount} files
+                      Images are read with AI vision (uses 1 credit each)
+                    </span>
+                    <span className="text-xs text-slate-500">
+                      PDF, Word (.doc/.docx), Excel (.xlsx/.xls), text files, PNG & JPEG ·
+                      up to 2 MB each · max {SOP_ATTACHMENT_LIMITS.maxCount} files
                     </span>
                     <input
                       type="file"

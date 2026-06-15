@@ -6,7 +6,11 @@ export const SOP_ATTACHMENT_LIMITS = {
   /** Max chars from attachments included in the AI prompt (avoids context overflow) */
   maxPromptAttachmentChars: 18_000,
   accept:
-    ".txt,.md,.csv,.json,.html,.htm,.xml,.log,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown,text/csv,application/json,text/html,text/xml",
+    ".txt,.md,.csv,.json,.html,.htm,.xml,.log,.doc,.docx,.pdf,.xlsx,.xls,.png,.jpg,.jpeg,.webp," +
+    "application/pdf,application/msword," +
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document," +
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet," +
+    "application/vnd.ms-excel,image/png,image/jpeg,image/webp",
 } as const;
 
 export type SopReportAttachmentPayload = {
@@ -30,9 +34,42 @@ const TEXT_EXTENSIONS = new Set([
   "log",
 ]);
 
+const SERVER_EXTRACT_EXTENSIONS = new Set([
+  "pdf",
+  "doc",
+  "docx",
+  "xlsx",
+  "xls",
+  "png",
+  "jpg",
+  "jpeg",
+  "webp",
+]);
+
 function fileExtension(name: string): string {
   const parts = name.split(".");
   return parts.length > 1 ? (parts.pop()?.toLowerCase() ?? "") : "";
+}
+
+function needsServerExtraction(file: File): boolean {
+  const ext = fileExtension(file.name);
+  if (SERVER_EXTRACT_EXTENSIONS.has(ext)) return true;
+  if (file.type.startsWith("image/")) return true;
+  if (file.type === "application/pdf") return true;
+  if (
+    file.type === "application/msword" ||
+    file.type ===
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  ) {
+    return true;
+  }
+  if (
+    file.type.includes("spreadsheet") ||
+    file.type.includes("excel")
+  ) {
+    return true;
+  }
+  return false;
 }
 
 function readFileAsText(file: File): Promise<string> {
@@ -44,11 +81,25 @@ function readFileAsText(file: File): Promise<string> {
   });
 }
 
-async function extractDocxText(file: File): Promise<string> {
-  const mammoth = await import("mammoth");
-  const arrayBuffer = await file.arrayBuffer();
-  const result = await mammoth.extractRawText({ arrayBuffer });
-  return result.value.trim();
+async function extractViaServer(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch("/api/tools/sop-reports/extract-attachment", {
+    method: "POST",
+    body: formData,
+  });
+
+  const data = (await res.json()) as { content?: string; error?: string };
+  if (!res.ok) {
+    throw new Error(data.error ?? `Could not read ${file.name}`);
+  }
+
+  if (!data.content?.trim()) {
+    throw new Error(`${file.name} appears empty`);
+  }
+
+  return data.content;
 }
 
 export async function extractSopAttachmentText(file: File): Promise<string> {
@@ -56,21 +107,14 @@ export async function extractSopAttachmentText(file: File): Promise<string> {
     throw new Error(`${file.name} exceeds 2 MB limit`);
   }
 
-  const ext = fileExtension(file.name);
-  const isDocx =
-    ext === "docx" ||
-    file.type ===
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-
   let text: string;
-  if (isDocx) {
-    text = await extractDocxText(file);
-  } else if (TEXT_EXTENSIONS.has(ext) || file.type.startsWith("text/")) {
+
+  if (needsServerExtraction(file)) {
+    text = await extractViaServer(file);
+  } else if (TEXT_EXTENSIONS.has(fileExtension(file.name)) || file.type.startsWith("text/")) {
     text = (await readFileAsText(file)).trim();
   } else {
-    throw new Error(
-      `${file.name}: unsupported type. Use .txt, .md, .csv, .json, .html, or .docx`
-    );
+    text = await extractViaServer(file);
   }
 
   if (!text) {
@@ -115,4 +159,9 @@ export function trimAttachmentsForPrompt(
   }
 
   return trimmed;
+}
+
+export function isImageAttachment(filename: string): boolean {
+  const ext = fileExtension(filename);
+  return ext === "png" || ext === "jpg" || ext === "jpeg" || ext === "webp";
 }
